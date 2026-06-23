@@ -1,30 +1,39 @@
 import { Image } from 'expo-image'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export default function Banner(props: { title: string, subtitle: string, subtitle2: string, imageUri?: string }) {
+interface BannerProps {
+    title: string;
+    subtitle: string;
+    subtitle2: string;
+    image: string;
+}
+
+export default function Banner({title, subtitle, subtitle2, image}: BannerProps) {
     return (
         <View>
-            <Text style={styles.subtitle}>{props.subtitle}</Text>
-            <TouchableOpacity onPress={() => { console.log(`Banner pressed: ${props.title}`) }}>
-            <View style={styles.banner}>
-                {/* Left side */}
-                <View style={styles.textContainer}>
-                    <Text style={styles.title}>{props.title}</Text>
-                    <Text style={styles.subtitle2}>{props.subtitle2}</Text>
+            <Text style={[styles.subtitle, {color: '#1D9E75'}]}>{subtitle}</Text>
+            <TouchableOpacity onPress={() => { console.log("Banner pressed: Hello, ZoweHub!") }}>
+                <View style={styles.banner}>
+                    {/* Left side */}
+                    <View style={styles.textContainer}>
+                        <Text style={styles.title}>{title}</Text>
+                        <Text style={styles.subtitle2}>{subtitle2}</Text>
+                    </View>
+                    {/* Right Image */}
+                    <Image source={image ?? 'https://via.placeholder.com/100'} style={styles.bannerImage} />
                 </View>
-                {/* Right Image */}
-                <Image source={{ uri: props.imageUri ?? "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=200&q=80" }} style={styles.bannerImage} />
-            </View>
-        </TouchableOpacity>
+            </TouchableOpacity>
         </View>
     )
 }
+
 
 const styles = StyleSheet.create({
     subtitle: {
         fontSize: 22,
         lineHeight: 28,
         fontWeight: '700',
+        color: "red"
     },
     banner: {
         backgroundColor: '#1D9E75', // ZoweHub primary green
