@@ -44,7 +44,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         overflow: 'hidden',
         minHeight: 90,
-        width: 350,
     },
     textContainer: {
         flex: 1, // Takes up remaining space after the image

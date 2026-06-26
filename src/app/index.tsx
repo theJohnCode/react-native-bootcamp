@@ -7,7 +7,7 @@ import LaptopCard from '@/components/LaptopCard';
 import { ThemedText } from '@/components/ui/theme-text';
 import { Spacing } from '@/constants/theme';
 import { brandFilters, conditionFilters, initialListings, priceRangeFilters } from '@/data/laptop';
-import { useCallback, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const BannerData = [
@@ -56,53 +56,34 @@ export default function Home() {
    */
   const [selectedPriceRange, setSelectedPriceRange] = useState(0);
 
-  /**
-   * Cycle through brand filters when the chip is pressed.
-   * Each press moves to the next brand in the list.
-   */
-  const cycleBrandFilter = useCallback(() => {
-    setSelectedBrand((current) => {
-      const currentIndex = brandFilters.indexOf(current);
-      const nextIndex = (currentIndex + 1) % brandFilters.length;
-      return brandFilters[nextIndex];
-    });
-  }, []);
+  const priceRangeLabels = useMemo(
+    () => priceRangeFilters.map((filter) => filter.label),
+    []
+  );
 
-  /**
-   * Cycle through condition filters when the chip is pressed.
-   */
-  const cycleConditionFilter = useCallback(() => {
-    setSelectedCondition((current) => {
-      const currentIndex = conditionFilters.indexOf(current);
-      const nextIndex = (currentIndex + 1) % conditionFilters.length;
-      return conditionFilters[nextIndex];
-    });
-  }, []);
+  const filteredListings = useMemo(() => {
+    const activePriceRange = priceRangeFilters[selectedPriceRange];
 
-  /**
-   * Cycle through price range filters when the chip is pressed.
-   */
-  const cyclePriceRangeFilter = useCallback(() => {
-    setSelectedPriceRange((current) => {
-      return (current + 1) % priceRangeFilters.length;
+    return initialListings.filter((listing) => {
+      const matchesBrand = selectedBrand === 'All' || listing.brand === selectedBrand;
+      const matchesCondition = selectedCondition === 'All' || listing.condition === selectedCondition;
+      const matchesPrice =
+        listing.price >= activePriceRange.min && listing.price <= activePriceRange.max;
+
+      return matchesBrand && matchesCondition && matchesPrice;
     });
-  }, []);
+  }, [selectedBrand, selectedCondition, selectedPriceRange]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.content}>
         <View style={styles.screen}>
           <Header />
-          <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 16, paddingVertical: 16 }}>
-            {BannerData.map((banner, index) => (
-              <Banner key={index} {...banner} />
-            ))}
 
-          </ScrollView>
 
           <FlatList
             key={columns}
-            data={initialListings}
+            data={filteredListings}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <LaptopCard
@@ -119,25 +100,33 @@ export default function Home() {
 
             ListHeaderComponent={
               <View style={styles.listHeader}>
+                <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 16, paddingVertical: 16 }}>
+                  {BannerData.map((banner, index) => (
+                    <Banner key={index} {...banner} />
+                  ))}
+                </ScrollView>
+
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.filterRow}
+                  contentContainerStyle={styles.filterRow}
                 >
                   {/* Brand filter chip */}
                   <FilterChip
                     label={selectedBrand === 'All' ? 'Brand' : selectedBrand}
                     selected={selectedBrand !== 'All'}
-                    onPress={cycleBrandFilter}
-                    hasDropdown
+                    options={brandFilters}
+                    selectedValue={selectedBrand}
+                    onSelect={(value) => setSelectedBrand(value as (typeof brandFilters)[number])}
                   />
 
                   {/* Condition filter chip */}
                   <FilterChip
                     label={selectedCondition === 'All' ? 'Condition' : selectedCondition}
                     selected={selectedCondition !== 'All'}
-                    onPress={cycleConditionFilter}
-                    hasDropdown
+                    options={conditionFilters}
+                    selectedValue={selectedCondition}
+                    onSelect={(value) => setSelectedCondition(value as (typeof conditionFilters)[number])}
                   />
 
                   {/* Price range filter chip */}
@@ -148,8 +137,12 @@ export default function Home() {
                         : priceRangeFilters[selectedPriceRange].label
                     }
                     selected={selectedPriceRange !== 0}
-                    onPress={cyclePriceRangeFilter}
-                    hasDropdown
+                    options={priceRangeLabels}
+                    selectedValue={priceRangeFilters[selectedPriceRange].label}
+                    onSelect={(value) => {
+                      const nextIndex = priceRangeFilters.findIndex((filter) => filter.label === value);
+                      setSelectedPriceRange(Math.max(0, nextIndex));
+                    }}
                   />
                 </ScrollView>
               </View>
@@ -188,7 +181,7 @@ const styles = StyleSheet.create({
     paddingBottom: Platform.select({ ios: 50, android: 80 }) ?? 0,
   },
   gridRow: {
-    gap: 8
+    gap: 8,
   },
   gridContent: {
     paddingBottom: 24,
@@ -201,6 +194,7 @@ const styles = StyleSheet.create({
   },
   emptyEmoji: {
     fontSize: 48,
+    padding: 20
   },
   emptyText: {
     textAlign: 'center',
@@ -210,7 +204,7 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.three,
     paddingBottom: Spacing.two,
   },
-   filterRow: {
+  filterRow: {
     gap: Spacing.two,
     paddingVertical: Spacing.one,
   },

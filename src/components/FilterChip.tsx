@@ -1,33 +1,19 @@
 /**
  * ============================================================
- * ZoweHub — FilterChip Component
+ * ZoweHub - FilterChip Component
  * ============================================================
  *
- * WEEK 2 CONCEPT: Reusable Components with Simple Props
- *
- * A FilterChip is a small pressable pill/button used for
- * filtering listings. It appears in the filter bar on the
- * Home and Explore screens.
- *
- * This is a great example of a SMALL, FOCUSED component.
- * It does ONE thing: show a label and respond to a press.
- *
- * PROPS:
- * - label: the text to show (e.g. "Brand", "Condition")
- * - selected: whether this chip is currently active
- * - onPress: what happens when the chip is tapped
- * - hasDropdown: whether to show a ▾ arrow (for dropdown filters)
+ * A FilterChip is a small pressable dropdown used for filtering
+ * listings. It shows the current filter label, opens a list of
+ * choices, and reports the selected option back to the screen.
  * ============================================================
  */
 
-import { Pressable, StyleSheet } from 'react-native';
+import { useRef, useState } from 'react';
+import { Modal, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { Spacing } from '@/constants/theme';
 import { ThemedText } from './ui/theme-text';
-
-// ---------------------------------------------------------------
-// PROPS TYPE
-// ---------------------------------------------------------------
 
 type FilterChipProps = {
   /** The text displayed on the chip */
@@ -36,61 +22,121 @@ type FilterChipProps = {
   /** Whether this chip is currently active/selected */
   selected: boolean;
 
-  /** Called when the chip is pressed */
-  onPress: () => void;
+  /** The dropdown options users can choose from */
+  options: readonly string[];
 
-  /**
-   * If true, shows a ▾ dropdown arrow after the label.
-   * This hints to the user that pressing will show more options.
-   */
-  hasDropdown?: boolean;
+  /** The currently selected option */
+  selectedValue: string;
+
+  /** Called when the user chooses an option */
+  onSelect: (value: string) => void;
 };
 
-// ---------------------------------------------------------------
-// COMPONENT
-// ---------------------------------------------------------------
+export function FilterChip({ label, selected, options, selectedValue, onSelect }: FilterChipProps) {
+  const triggerRef = useRef<View>(null);
+  const { width: windowWidth } = useWindowDimensions();
+  const [isOpen, setIsOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0, width: 180 });
 
-export function FilterChip({ label, selected, onPress, hasDropdown }: FilterChipProps) {
+  const openDropdown = () => {
+    triggerRef.current?.measureInWindow((x, y, width, height) => {
+      const menuWidth = Math.max(width, 180);
+      const left = Math.min(Math.max(16, x), Math.max(16, windowWidth - menuWidth - 16));
+
+      setMenuPosition({
+        top: y + height + Spacing.one,
+        left,
+        width: menuWidth,
+      });
+      setIsOpen(true);
+    });
+  };
+
+  const chooseOption = (value: string) => {
+    onSelect(value);
+    setIsOpen(false);
+  };
+
   return (
-    /**
-     * Pressable with a style function — the style changes
-     * based on whether the chip is being pressed right now.
-     *
-     * WEEK 1 CONCEPT: Conditional Styles
-     * We use the spread operator (...) and && to conditionally
-     * add styles. If 'selected' is true, the selected style is applied.
-     * If 'pressed' is true, the opacity changes.
-     */
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.chip,
-        selected && styles.chipSelected,
-        pressed && styles.pressed,
-      ]}
-    >
-      <ThemedText
-        type="smallBold"
-        style={[
-          styles.chipText,
-          selected && styles.chipTextSelected,
+    <View>
+      <Pressable
+        ref={triggerRef}
+        accessibilityRole="button"
+        accessibilityState={{ expanded: isOpen, selected }}
+        onPress={openDropdown}
+        style={({ pressed }) => [
+          styles.chip,
+          selected && styles.chipSelected,
+          pressed && styles.pressed,
         ]}
       >
-        {label}
-        {/* Show dropdown arrow if hasDropdown is true */}
-        {hasDropdown ? ' ▾' : ''}
-      </ThemedText>
-    </Pressable>
+        <ThemedText
+          type="smallBold"
+          style={[
+            styles.chipText,
+            selected && styles.chipTextSelected,
+          ]}
+        >
+          {label}
+        </ThemedText>
+      </Pressable>
+
+      <Modal
+        transparent
+        visible={isOpen}
+        animationType="fade"
+        onRequestClose={() => setIsOpen(false)}
+      >
+        <Pressable style={styles.backdrop} onPress={() => setIsOpen(false)}>
+          <View
+            style={[
+              styles.menu,
+              {
+                top: menuPosition.top,
+                left: menuPosition.left,
+                width: menuPosition.width,
+              },
+            ]}
+          >
+            {options.map((option) => {
+              const isSelectedOption = option === selectedValue;
+
+              return (
+                <Pressable
+                  key={option}
+                  accessibilityRole="menuitem"
+                  accessibilityState={{ selected: isSelectedOption }}
+                  onPress={() => chooseOption(option)}
+                  style={({ pressed }) => [
+                    styles.menuItem,
+                    isSelectedOption && styles.menuItemSelected,
+                    pressed && styles.pressed,
+                  ]}
+                >
+                  <ThemedText
+                    type={isSelectedOption ? 'smallBold' : 'small'}
+                    style={[
+                      styles.menuItemText,
+                      isSelectedOption && styles.menuItemTextSelected,
+                    ]}
+                  >
+                    {option}
+                  </ThemedText>
+                </Pressable>
+              );
+            })}
+          </View>
+        </Pressable>
+      </Modal>
+    </View>
   );
 }
 
-// ---------------------------------------------------------------
-// STYLES
-// ---------------------------------------------------------------
-
 const styles = StyleSheet.create({
   chip: {
-    borderRadius: 20, // Fully rounded pill shape
+    minHeight: 38,
+    justifyContent: 'center',
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: '#D8E6DD',
     paddingHorizontal: Spacing.three,
@@ -98,7 +144,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   chipSelected: {
-    backgroundColor: '#1D9E75', // ZoweHub green when selected
+    backgroundColor: '#1D9E75',
     borderColor: '#1D9E75',
   },
   chipText: {
@@ -106,9 +152,42 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   chipTextSelected: {
-    color: '#FFFFFF', // White text on green background
+    color: '#FFFFFF',
   },
   pressed: {
     opacity: 0.7,
+  },
+  backdrop: {
+    flex: 1,
+  },
+  menu: {
+    position: 'absolute',
+    overflow: 'hidden',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#D8E6DD',
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  menuItem: {
+    minHeight: 42,
+    justifyContent: 'center',
+    paddingHorizontal: Spacing.three,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEF4F0',
+  },
+  menuItemSelected: {
+    backgroundColor: '#E6F6F0',
+  },
+  menuItemText: {
+    color: '#3C4A3F',
+    fontSize: 14,
+  },
+  menuItemTextSelected: {
+    color: '#146B43',
   },
 });
