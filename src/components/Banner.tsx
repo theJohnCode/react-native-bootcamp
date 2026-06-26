@@ -1,4 +1,5 @@
 import { Image } from 'expo-image'
+import { router } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 interface BannerProps {
@@ -12,7 +13,7 @@ export default function Banner({title, subtitle, subtitle2, image}: BannerProps)
     return (
         <View>
             <Text style={[styles.subtitle, {color: '#1D9E75'}]}>{subtitle}</Text>
-            <TouchableOpacity onPress={() => { console.log("Banner pressed: Hello, ZoweHub!") }}>
+            <TouchableOpacity onPress={() => { router.push('/about') }}>
                 <View style={styles.banner}>
                     {/* Left side */}
                     <View style={styles.textContainer}>

@@ -136,14 +136,18 @@ export const brandFilters = [
 ] as const;
 
 /** All available condition filter options */
-export const conditionFilters = ["All", "Brand New", "Grade A"] as const;
+export const conditionFilters = ["All", "Brand New", "Grade A", "Fairly Used"] as const;
 
 /** Price range filter options with min/max bounds in Naira */
 export const priceRangeFilters = [
   { label: "All Prices", min: 0, max: Infinity },
+
   { label: "Under ₦300K", min: 0, max: 300000 },
+
   { label: "₦300K - ₦500K", min: 300000, max: 500000 },
+
   { label: "₦500K - ₦800K", min: 500000, max: 800000 },
+  
   { label: "Above ₦800K", min: 800000, max: Infinity },
 ] as const;
 

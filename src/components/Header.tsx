@@ -1,7 +1,9 @@
-import { Image } from 'expo-image';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TextInput, View } from 'react-native';
 
-export default function Header() {
+interface HeaderProps {
+    onSearch: (query: string) => void;
+}
+export default function Header({ onSearch }: HeaderProps) {
     return (
         <View style={styles.header}>
             <View style={styles.brandRow}>
@@ -15,7 +17,10 @@ export default function Header() {
             </View>
 
             <View style={styles.searchBar}>
-                <Text style={styles.searchText}>🔍 Search Laptops...</Text>
+                <TextInput
+                    placeholder='🔍 Search Laptops...'
+                    onChangeText={onSearch}
+                    style={styles.searchInput} />
             </View>
 
             <View style={styles.filterIconButton}>
@@ -57,11 +62,12 @@ const styles = StyleSheet.create({
     },
     searchBar: {
         borderRadius: 8,
-        padding: 10,
-        backgroundColor: "#2c252530"
+        padding: 5,
+        backgroundColor: "#2c252530",
     },
-    searchText: {
-        color: "#000"
+    searchInput: {
+        color: "#000",
+        width: 160,
     },
     filterIconButton: {
         width: 36,
@@ -71,7 +77,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    filterIcon:{
+    filterIcon: {
         fontSize: 16
     }
 });

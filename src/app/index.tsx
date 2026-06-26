@@ -56,30 +56,37 @@ export default function Home() {
    */
   const [selectedPriceRange, setSelectedPriceRange] = useState(0);
 
+  const [searchQuery, setSearchQuery] = useState('');
+
   const priceRangeLabels = useMemo(
     () => priceRangeFilters.map((filter) => filter.label),
     []
   );
 
+
   const filteredListings = useMemo(() => {
     const activePriceRange = priceRangeFilters[selectedPriceRange];
 
-    return initialListings.filter((listing) => {
-      const matchesBrand = selectedBrand === 'All' || listing.brand === selectedBrand;
-      const matchesCondition = selectedCondition === 'All' || listing.condition === selectedCondition;
+    return initialListings.filter((laptop) => {
+      const matchesBrand = selectedBrand === 'All' || laptop.brand === selectedBrand;
+      const matchesCondition = selectedCondition === 'All' || laptop.condition === selectedCondition;
       const matchesPrice =
-        listing.price >= activePriceRange.min && listing.price <= activePriceRange.max;
+        laptop.price >= activePriceRange.min && laptop.price <= activePriceRange.max;
+      const matchesSearch =
+        searchQuery.trim() === '' ||
+        laptop.title.toLowerCase().includes(searchQuery.toLowerCase());
 
-      return matchesBrand && matchesCondition && matchesPrice;
+      return matchesBrand && matchesCondition && matchesPrice && matchesSearch;
     });
-  }, [selectedBrand, selectedCondition, selectedPriceRange]);
+  }, [selectedBrand, selectedCondition, selectedPriceRange, searchQuery]);
+
+
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.content}>
         <View style={styles.screen}>
-          <Header />
-
+          <Header onSearch={setSearchQuery} />
 
           <FlatList
             key={columns}
@@ -144,6 +151,8 @@ export default function Home() {
                       setSelectedPriceRange(Math.max(0, nextIndex));
                     }}
                   />
+
+                  
                 </ScrollView>
               </View>
             }
