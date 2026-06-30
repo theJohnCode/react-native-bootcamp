@@ -9,6 +9,7 @@ import { Spacing } from '@/constants/theme';
 import { brandFilters, conditionFilters, initialListings, priceRangeFilters } from '@/data/laptop';
 import { useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from 'expo-router';
 
 const BannerData = [
   {
@@ -95,7 +96,7 @@ export default function Home() {
             renderItem={({ item }) => (
               <LaptopCard
                 item={item}
-                onPress={() => console.log(`Navigate to details for ${item.title}`)}
+                onPress={() => router.push(`/laptop/${item.id}` as any)}
                 isFavourite={false}
                 onToggleFavourite={() => console.log(`Toggle favourite for ${item.title}`)}
               />
