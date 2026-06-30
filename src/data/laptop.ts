@@ -1,3 +1,5 @@
+import { ImageSourcePropType } from "react-native";
+
 /**
  * ============================================================
  * ZoweHub — Laptop Listings Data
@@ -75,8 +77,8 @@ export type LaptopListing = {
   /** Condition grade of the laptop */
   condition: Condition;
 
-  /** URL to the laptop's product image */
-  imageUrl: string;
+  /** Laptop product image. Supports remote URLs and bundled Expo assets. */
+  image: ImageSourcePropType;
 
   /** Technical specifications */
   specs: {
@@ -130,21 +132,27 @@ export const brandFilters = [
   "Acer",
   "Razer",
   "MSI",
-  "Samsung",
-  "LG",
-  "Other",
+
+  "Others",
 ] as const;
 
 /** All available condition filter options */
-export const conditionFilters = ["All", "Brand New", "Grade A"] as const;
+export const conditionFilters = [
+  "All",
+  "Brand New",
+  "Grade A",
+  "Fairly Used",
+] as const;
 
 /** Price range filter options with min/max bounds in Naira */
 export const priceRangeFilters = [
   { label: "All Prices", min: 0, max: Infinity },
-  { label: "Under ₦300K", min: 0, max: 300000 },
+  { label: "Under ₦150K", min: 0, max: 150000 },
+  { label: "₦150K - ₦300K", min: 150000, max: 300000 },
   { label: "₦300K - ₦500K", min: 300000, max: 500000 },
   { label: "₦500K - ₦800K", min: 500000, max: 800000 },
-  { label: "Above ₦800K", min: 800000, max: Infinity },
+  { label: "Above ₦800K", min: 800000
+    , max: Infinity },
 ] as const;
 
 // ---------------------------------------------------------------
@@ -170,7 +178,7 @@ export const initialListings: LaptopListing[] = [
     brand: "Apple",
     price: 690000,
     condition: "Grade A",
-    imageUrl: require('@/assets/images/macbook.png'),
+    image: require("@/assets/images/macbook.png"),
     specs: {
       processor: "Apple M1",
       ram: "8GB",
@@ -189,8 +197,7 @@ export const initialListings: LaptopListing[] = [
     brand: "HP",
     price: 385000,
     condition: "Brand New",
-    imageUrl:
-      "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=640&q=80",
+    image: require("@/assets/images/HP.jpeg"),
     specs: {
       processor: "Intel Core i5",
       ram: "16GB",
@@ -209,8 +216,9 @@ export const initialListings: LaptopListing[] = [
     brand: "Dell",
     price: 430000,
     condition: "Grade A",
-    imageUrl:
-      "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=640&q=80",
+    image: {
+      uri: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=640&q=80",
+    },
     specs: {
       processor: "Intel Core i7",
       ram: "16GB",
@@ -229,8 +237,7 @@ export const initialListings: LaptopListing[] = [
     brand: "Lenovo",
     price: 260000,
     condition: "Brand New",
-    imageUrl:
-      "https://images.unsplash.com/photo-1541807084-5c52b6b3adef?auto=format&fit=crop&w=640&q=80",
+    image: require("@/assets/images/jy.jpeg"),
     specs: {
       processor: "Intel Core i5",
       ram: "8GB",
@@ -249,8 +256,9 @@ export const initialListings: LaptopListing[] = [
     brand: "Apple",
     price: 620000,
     condition: "Grade A",
-    imageUrl:
-      "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?auto=format&fit=crop&w=640&q=80",
+    image: {
+      uri: "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?auto=format&fit=crop&w=640&q=80",
+    },
     specs: {
       processor: "Apple M1",
       ram: "8GB",
@@ -269,8 +277,7 @@ export const initialListings: LaptopListing[] = [
     brand: "HP",
     price: 335000,
     condition: "Brand New",
-    imageUrl:
-      "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=640&q=80",
+    image: require("@/assets/images/TOP.jpeg"),
     specs: {
       processor: "Intel Core i5",
       ram: "8GB",
@@ -281,6 +288,124 @@ export const initialListings: LaptopListing[] = [
       name: "John Code",
       location: "UNIZIK, Awka",
       rating: 4.7,
+    },
+  },
+  {
+    id: "hp-envy-x360-13",
+    title: "HP Envy x360 13",
+    brand: "HP",
+    price: 520000,
+    condition: "Brand New",
+    image: require("@/assets/images/HP.jpeg"),
+    specs: {
+      processor: "Intel Core i7",
+      ram: "16GB",
+      storage: "512GB SSD",
+      batteryHealth: 100,
+    },
+    vendor: {
+      name: "John Code",
+      location: "Dugbe, Ibadan",
+      rating: 4.8,
+    },
+  },
+  {
+    id: "hp-envy-boxed-stock",
+    title: "HP Envy Boxed Stock",
+    brand: "HP",
+    price: 475000,
+    condition: "Brand New",
+    image: require("@/assets/images/TOP.jpeg"),
+    specs: {
+      processor: "Intel Core i5",
+      ram: "16GB",
+      storage: "512GB SSD",
+      batteryHealth: 100,
+    },
+    vendor: {
+      name: "John Code",
+      location: "Challenge, Ibadan",
+      rating: 4.7,
+    },
+  },
+  {
+    id: "lenovo-yoga-2-in-1",
+    title: "Lenovo Yoga 2-in-1",
+    brand: "Lenovo",
+    price: 410000,
+    condition: "Grade A",
+    image: require("@/assets/images/jy.jpeg"),
+    specs: {
+      processor: "Intel Core i5",
+      ram: "8GB",
+      storage: "256GB SSD",
+      batteryHealth: 87,
+    },
+    vendor: {
+      name: "John Code",
+      location: "Ring Road, Ibadan",
+      rating: 4.6,
+    },
+  },
+  {
+    id: "asus-zenbook-14",
+    title: "Asus ZenBook 14",
+    brand: "Asus",
+    price: 445000,
+    condition: "Grade A",
+    image: {
+      uri: "https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=640&q=80",
+    },
+    specs: {
+      processor: "Intel Core i7",
+      ram: "16GB",
+      storage: "512GB SSD",
+      batteryHealth: 90,
+    },
+    vendor: {
+      name: "John Code",
+      location: "Akobo, Ibadan",
+      rating: 4.5,
+    },
+  },
+  {
+    id: "acer-swift-3",
+    title: "Acer Swift 3",
+    brand: "Acer",
+    price: 295000,
+    condition: "Grade A",
+    image: {
+      uri: "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?auto=format&fit=crop&w=640&q=80",
+    },
+    specs: {
+      processor: "Intel Core i5",
+      ram: "8GB",
+      storage: "512GB SSD",
+      batteryHealth: 84,
+    },
+    vendor: {
+      name: "John Code",
+      location: "Mokola, Ibadan",
+      rating: 4.4,
+    },
+  },
+  {
+    id: "macbook-air-m1",
+    title: 'MacBook Air 13"',
+    brand: "Apple",
+    price: 575000,
+    condition: "Grade A",
+    image: require("@/assets/images/macbook.png"),
+    specs: {
+      processor: "Apple M1",
+      ram: "8GB",
+      storage: "256GB SSD",
+      batteryHealth: 89,
+    },
+    vendor: {
+      name: "John Code",
+      location: "Awka, Anambra",
+      rating: 4.8,
     },
   },
 ];

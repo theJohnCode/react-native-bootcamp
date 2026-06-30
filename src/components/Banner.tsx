@@ -1,15 +1,27 @@
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet, Button, Pressable, Linking } from 'react-native'
 import React from 'react'
 import { Image } from 'expo-image'
+import { router } from 'expo-router';
 
 interface BannerProps {
     title: string;
     subtitle: string;
     subtitle2: string;
-    image: any;
+    image: string;
+    link?: {
+        url: string;
+        text: string;
+    }
 }
 
-export default function Banner({ title, subtitle, subtitle2, image }: BannerProps) {
+const openLink = (url: string) => {
+    Linking.openURL(url).catch(err =>
+        console.error("Couldn't load page", err)
+    );
+}
+
+
+export default function Banner({ title, subtitle, subtitle2, image, link }: BannerProps) {
     return (
         <View>
             <Text style={styles.Subtitle}>
@@ -20,6 +32,12 @@ export default function Banner({ title, subtitle, subtitle2, image }: BannerProp
                 <View style={styles.Textcontainer}>
                     <Text style={styles.title}>{title}</Text>
                     <Text style={styles.Subtitle2}>{subtitle2}</Text>
+
+                    {link && (
+                        <Pressable onPress={() => openLink(link.url)} style={styles.learnMoreButton}>
+                            <Text>{link.text}</Text>
+                        </Pressable>
+                    )}
                 </View>
 
                 {/* right side */}
@@ -64,6 +82,15 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: '#fff',
         textTransform: 'capitalize',
+    },
+    learnMoreButton: {
+        backgroundColor: '#fff9f9',
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        width: 150,
+        borderRadius: 8,
+        marginTop: 8,
+        alignItems: 'center',
     }
 
 })

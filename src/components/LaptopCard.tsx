@@ -34,7 +34,7 @@ export default function LaptopCard({ item, onPress, isFavourite, onToggleFavouri
 
             {/* Image Container and the favourite button */}
             <View style={styles.imageContainer}>
-                <Image source={{ uri: item.imageUrl }} style={styles.productImage} />
+                <Image source={item.image} style={styles.productImage} contentFit="cover" />
 
                 {onToggleFavourite && (
                     <Pressable
@@ -93,18 +93,18 @@ const styles = StyleSheet.create({
     },
     favouriteButton: {
         position: 'absolute',
-        top: 8,
-        right: 8,
-        width: 32,
-        height: 32,
+        bottom: 2,
+        right: 2,
+        width: 30,
+        height: 30,
         borderRadius: 16,
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        backgroundColor: 'rgba(234, 223, 223, 0.9)',
         alignItems: 'center',
         justifyContent: 'center',
     },
     heartIcon: {
-        fontSize: 16,
-        color: '#E74C3C', // Red heart colour
+        fontSize: 20,
+        color: '#cf1d0a', // Red heart colour
     },
     cardBody: {
         padding: 8,

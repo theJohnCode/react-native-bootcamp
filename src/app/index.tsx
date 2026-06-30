@@ -8,26 +8,37 @@ import { ThemedText } from '@/components/ui/theme-text';
 import { Spacing } from '@/constants/theme';
 import { brandFilters, conditionFilters, initialListings, priceRangeFilters } from '@/data/laptop';
 import { useMemo, useState } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context'; 
 
 const BannerData = [
   {
-    title: "Welcome to ZoweHub",
-    subtitle: "Mainframe innovation",
-    subtitle2: "Development with ZoweHub.",
-    image: require('@/assets/images/icon.png')
+    title: "WEEKLY DEALS",
+    subtitle:  "Welcome to Laptop Mall NG",
+    subtitle2: "Up To 50% Off",
+    image: require('@/assets/images/jy.jpeg'),
+    // link: {
+    //   url:'https://wa.me/8788887788',
+    //   text: 'Learn More'
+    // }
   },
   {
     title: "Discover New Features",
-    subtitle: "Mainframe technology",
-    subtitle2: "Newest tools and features.",
-    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=200&q=80"
+    subtitle: "Explore the Latest in Tech",
+    subtitle2: "Newest tools and features ",
+    image: require('@/assets/images/HP.jpeg'),
+    //   url:'https:/https://chat.whatsapp.com/Eh7Bnb2EvepDITwS74Fbhj?mode=gi_t',
+    //   text: 'Learn More'
+    // }
   },
   {
-    title: "Join the Community",
-    subtitle: "Developers and enthusiasts",
-    subtitle2: "ZoweHub community.",
-    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=200&q=80"
+    title: "Join Us ",
+    subtitle: "Be Part of Something Bigger",
+    subtitle2: "message us on WhatsApp ",
+    image: require('@/assets/images/com.jpeg'),
+    link: {
+      url: 'https://wa.me/09069400124',
+      text: 'Click Me '
+    }
   },
 
 ];
@@ -50,6 +61,8 @@ export default function Home() {
    */
   const [selectedCondition, setSelectedCondition] = useState<(typeof conditionFilters)[number]>('All');
 
+  const [searchQuery, setSearchQuery] = useState('');
+
   /**
    * Index into the priceRangeFilters array.
    * 0 = "All Prices" (no filter)
@@ -69,16 +82,18 @@ export default function Home() {
       const matchesCondition = selectedCondition === 'All' || listing.condition === selectedCondition;
       const matchesPrice =
         listing.price >= activePriceRange.min && listing.price <= activePriceRange.max;
-
-      return matchesBrand && matchesCondition && matchesPrice;
+      const matchesSearch =
+        listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        listing.brand.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesBrand && matchesCondition && matchesPrice && matchesSearch;
     });
-  }, [selectedBrand, selectedCondition, selectedPriceRange]);
+  }, [selectedBrand, selectedCondition, selectedPriceRange, searchQuery]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.content}>
         <View style={styles.screen}>
-          <Header />
+          <Header onSearch={setSearchQuery} />
 
 
           <FlatList
@@ -142,6 +157,8 @@ export default function Home() {
                     onSelect={(value) => {
                       const nextIndex = priceRangeFilters.findIndex((filter) => filter.label === value);
                       setSelectedPriceRange(Math.max(0, nextIndex));
+
+                      
                     }}
                   />
                 </ScrollView>
