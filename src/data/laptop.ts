@@ -288,4 +288,24 @@ export const initialListings: LaptopListing[] = [
       rating: 4.7,
     },
   },
+  {
+    id: "hp-elitebook-840-g5",
+    title: "HP EliteBook 840",
+    brand: "HP",
+    price: 335000,
+    condition: "Brand New",
+    imageUrl:
+      "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=640&q=80",
+    specs: {
+      processor: "Intel Core i5",
+      ram: "8GB",
+      storage: "256GB SSD",
+      batteryHealth: 88,
+    },
+    vendor: {
+      name: "John Code",
+      location: "UNIZIK, Awka",
+      rating: 4.7,
+    },
+  },
 ];
