@@ -19,14 +19,15 @@
 
 import { Colors } from '@/constants/theme';
 import {
-  faGraduationCap,
+  faBell,
   faHouse,
   faMagnifyingGlass,
+  faPlus,
   faUser,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { Tabs } from 'expo-router';
-import { StyleSheet, useColorScheme } from 'react-native';
+import { StyleSheet, TouchableOpacity, useColorScheme } from 'react-native';
 
 export default function AppTabs() {
   const scheme = useColorScheme();
@@ -65,11 +66,32 @@ export default function AppTabs() {
       />
 
       <Tabs.Screen
-        name="campus-hub"
+        name="create-laptop"
         options={{
-          title: 'Campus Hub',
+          title: "",
+          tabBarButton: (props) => (
+            <TouchableOpacity
+              {...Object.fromEntries(
+                Object.entries(props).filter(([, v]) => v !== null)
+              )}
+              style={styles.floatingButton}
+            >
+              <FontAwesomeIcon
+                icon={faPlus}
+                color="white"
+                size={24}
+              />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="notifications"
+        options={{
+          title: 'Notifications',
           tabBarIcon: ({ color }) => (
-            <FontAwesomeIcon icon={faGraduationCap} color={String(color)} size={22} />
+            <FontAwesomeIcon icon={faBell} color={String(color)} size={22} />
           ),
           tabBarBadge: 3,
         }}
@@ -93,5 +115,22 @@ const styles = StyleSheet.create({
   tabLabel: {
     fontSize: 12,
     fontWeight: '600',
+  },
+  floatingButton: {
+    top: -20,
+    justifyContent: "center",
+    alignItems: "center",
+    width: 65,
+    height: 65,
+    borderRadius: 32.5,
+    backgroundColor: "#1D9E75",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.6,
+    shadowRadius: 5,
+    elevation: 8,
   },
 });

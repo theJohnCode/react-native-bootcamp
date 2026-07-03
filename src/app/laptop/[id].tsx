@@ -1,8 +1,9 @@
 import ImageSlider from '@/components/ImageSlider';
 import { conditionColors, initialListings } from '@/data/laptop';
 import { formatPrice } from '@/utils/format';
-import { router, Stack, useLocalSearchParams } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useNavigation } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useLayoutEffect, useMemo, useState } from 'react';
 import {
   Pressable,
   ScrollView,
@@ -16,9 +17,24 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function LapTopDetailScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
+  const navigation = useNavigation();
   const [isFavorited, setIsFavorited] = useState(false);
 
   const laptop = initialListings.find((item) => item.id === id);
+
+  useLayoutEffect(() => {
+    if (laptop) {
+      navigation.setOptions({
+        headerShown: true,
+        title: laptop.title,
+        header: () => {
+          <View style={{ height: 120, backgroundColor: 'blue', justifyContent: 'center' }}>
+            <Text style={{ color: 'white' }}>{laptop.title}</Text>
+          </View>
+        }
+      });
+    }
+  }, [laptop, navigation]);
 
   const fullSpecs = useMemo(() => {
     if (!laptop) {
@@ -46,7 +62,6 @@ export default function LapTopDetailScreen() {
   if (!laptop) {
     return (
       <SafeAreaView style={styles.container}>
-        <Stack.Screen options={{ title: 'Laptop Details' }} />
         <View style={styles.notFound}>
           <Text style={styles.notFoundTitle}>Laptop not found</Text>
           <Text style={styles.notFoundText}>This listing may have been removed.</Text>
@@ -62,7 +77,6 @@ export default function LapTopDetailScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
-      <Stack.Screen options={{ headerShown: true, title: laptop.title }} />
       <StatusBar barStyle="dark-content" />
 
       <View style={styles.floatingHeader}>

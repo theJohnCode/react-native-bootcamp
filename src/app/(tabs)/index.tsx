@@ -87,7 +87,7 @@ export default function Home() {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.content}>
         <View style={styles.screen}>
-          <Header onSearch={setSearchQuery} />
+          <Header onSearch={setSearchQuery}  />
 
           <FlatList
             key={columns}
