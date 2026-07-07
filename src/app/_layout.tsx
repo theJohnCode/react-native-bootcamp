@@ -1,4 +1,5 @@
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { ListingsProvider } from "@/contexts/ListingsContext";
 import { Stack, useRouter } from "expo-router";
 import { useEffect } from "react";
 
@@ -44,7 +45,9 @@ function RootLayoutContent() {
 export default function RootLayout() {
   return (
     <AuthProvider>
-      <RootLayoutContent />
+      <ListingsProvider>
+        <RootLayoutContent />
+      </ListingsProvider>
     </AuthProvider>
   );
 }

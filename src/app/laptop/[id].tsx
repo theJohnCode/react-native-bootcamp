@@ -1,8 +1,7 @@
 import ImageSlider from '@/components/ImageSlider';
 import { conditionColors, initialListings } from '@/data/laptop';
 import { formatPrice } from '@/utils/format';
-import { useNavigation } from 'expo-router';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useNavigation, router, useLocalSearchParams } from 'expo-router';
 import { useLayoutEffect, useMemo, useState } from 'react';
 import {
   Pressable,
