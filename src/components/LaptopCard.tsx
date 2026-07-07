@@ -34,7 +34,7 @@ export default function LaptopCard({ item, onPress, isFavourite, onToggleFavouri
 
             {/* Image Container and the favourite button */}
             <View style={styles.imageContainer}>
-                <Image source={{ uri: item.imageUrl }} style={styles.productImage} />
+                <Image source={{ uri: item.images[0] }} style={styles.productImage} />
 
                 {onToggleFavourite && (
                     <Pressable
