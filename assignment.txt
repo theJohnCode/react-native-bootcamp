@@ -1,0 +1,250 @@
+================================================================================
+                    ZOWHUB - CONTEXT API ASSIGNMENT
+         Remove Prop Drilling with React Context & Listings Management
+================================================================================
+
+OBJECTIVE:
+Remove all prop chains throughout the app. All screens should read laptop data
+from the ListingsContext instead of passing data through component hierarchies.
+
+================================================================================
+PART 1: UNDERSTANDING THE CURRENT PROBLEM (Prop Drilling)
+================================================================================
+
+Currently, the app likely passes laptop data through multiple levels:
+  HomeScreen → LaptopList → LaptopCard → Details
+
+This is "prop drilling" - passing data through intermediate components that 
+don't need it. It makes the code harder to maintain and refactor.
+
+THE SOLUTION: React Context API
+- Create a centralized ListingsContext
+- Provide it at the app root
+- Use the useListings() hook in any component that needs data
+
+================================================================================
+PART 2: THE LISTINGS CONTEXT (Already Created)
+================================================================================
+
+File: src/contexts/ListingsContext.tsx
+
+Key Components:
+1. ListingsContext - The context object
+2. ListingsProvider - Wraps the app and provides data
+3. useListings() - Hook to access context data
+
+The context provides:
+  - laptops: Laptop[] - Array of all laptop listings
+  - getLaptopById(id): Laptop | undefined - Find a specific laptop
+
+================================================================================
+PART 3: HOW TO USE THE CONTEXT IN YOUR COMPONENTS
+================================================================================
+
+STEP 1: Import the hook
+  import { useListings } from '@/contexts/ListingsContext';
+
+STEP 2: Use the hook in your component
+  export default function HomeScreen() {
+    const { laptops } = useListings();
+    
+    return (
+      <View>
+        {laptops.map((laptop) => (
+          <LaptopCard key={laptop.id} laptop={laptop} />
+        ))}
+      </View>
+    );
+  }
+
+STEP 3: Remove the prop chain
+  // BEFORE: Passing through components
+  <HomeScreen laptops={initialListings} />
+  
+  // AFTER: Reading from context
+  export default function HomeScreen() {
+    const { laptops } = useListings();
+  }
+
+================================================================================
+PART 4: YOUR TASKS
+================================================================================
+
+TODO 1: Update HomeScreen
+  File: src/app/(tabs)/index.tsx
+  
+  - Import useListings hook
+  - Get laptops from context instead of props
+  - Remove any props related to laptop data
+  
+  Example:
+    const { laptops } = useListings();
+    
+    return (
+      <View>
+        {laptops.map(laptop => (
+          <LaptopCard key={laptop.id} laptop={laptop} />
+        ))}
+      </View>
+    );
+
+TODO 2: Update ExploreScreen
+  File: src/app/(tabs)/explore.tsx
+  
+  - Import useListings hook
+  - Get laptops from context
+  - Remove laptop-related props
+  
+TODO 3: Update LaptopCard Component
+  File: src/components/LaptopCard.tsx
+  
+  - Remove laptop prop if it was being passed through
+  - If needed, use context directly in the component
+  - Update navigation to pass only the laptop ID
+
+TODO 4: Update Laptop Details Screen
+  File: src/app/laptop/[id].tsx
+  
+  - Import useListings hook
+  - Use getLaptopById(id) to fetch the laptop
+  - Remove any data passed through route params
+  
+  Example:
+    export default function LaptopDetailScreen() {
+      const { id } = useLocalSearchParams<{ id?: string }>();
+      const { getLaptopById } = useListings();
+      const laptop = getLaptopById(id || '');
+      
+      // Rest of component...
+    }
+
+TODO 5: Update Other Components
+  File: src/components/Banner.tsx (and similar components)
+  
+  - Review if they need laptop data
+  - Use context if they do
+  - Remove unnecessary props
+
+================================================================================
+PART 5: BEST PRACTICES
+================================================================================
+
+1. USE CONTEXT FOR GLOBAL DATA
+   ✓ Use when data is needed in many places
+   ✓ Use when passing through multiple components
+   ✗ Don't use for component-specific state (use useState)
+
+2. KEEP CONTEXT FOCUSED
+   ✓ ListingsContext = laptop data only
+   ✓ AuthContext = user authentication only
+   ✗ Don't put everything in one context
+
+3. USE CUSTOM HOOKS
+   ✓ Always create a custom hook (useListings)
+   ✓ Add error checks in the hook
+   ✗ Don't use useContext directly in every component
+
+4. MEMOIZE IF NEEDED
+   When context has large data, consider useMemo:
+   
+   const value = useMemo(() => ({
+     laptops,
+     getLaptopById
+   }), [laptops]);
+
+================================================================================
+PART 6: TESTING YOUR IMPLEMENTATION
+================================================================================
+
+1. Run the app:
+   npm start
+
+2. Navigate to home screen - should show laptop listings
+   - Laptops should load from context
+
+3. Navigate to explore screen - should show filtered laptops
+   - Context data should be accessible
+
+4. Click on a laptop card - navigate to details
+   - Details should show using getLaptopById()
+   - No data should be passed through route params
+
+5. Check for prop warnings in console
+   - Should have fewer prop-related warnings
+
+================================================================================
+PART 7: DEBUGGING TIPS
+================================================================================
+
+If context isn't working:
+
+1. Check Provider is at root:
+   - RootLayout should have <ListingsProvider>
+   
+2. Check hook is imported correctly:
+   - import { useListings } from '@/contexts/ListingsContext';
+   
+3. Check for duplicate providers:
+   - Only one ListingsProvider should wrap the app
+   
+4. Use console.log to debug:
+   - const { laptops } = useListings();
+   - console.log('Laptops:', laptops);
+
+================================================================================
+PART 8: SUBMISSION REQUIREMENTS
+================================================================================
+
+Update these files:
+1. src/app/(tabs)/index.tsx
+2. src/app/(tabs)/explore.tsx
+3. src/components/LaptopCard.tsx
+4. src/app/laptop/[id].tsx
+5. Any other components using laptop data
+
+Checklist:
+□ All components import useListings where needed
+□ No prop chains for laptop data
+□ No data passed through route params unnecessarily
+□ App loads without errors
+□ Laptop listings display correctly
+□ Navigation works between screens
+□ Details page loads laptop by ID from context
+
+================================================================================
+BONUS CHALLENGES
+================================================================================
+
+1. Add filtering to context:
+   export function useFilteredListings(filter) {
+     const { laptops } = useListings();
+     return laptops.filter(...);
+   }
+
+2. Add search functionality:
+   - Add searchListings(query) to context
+   - Use in Explore screen
+
+3. Add favorites:
+   - Add isFavorited state to context
+   - Add toggleFavorite(id) method
+   - Use in components
+
+4. Add sorting:
+   - Add sortBy parameter to context
+   - Sort laptops by price, condition, rating
+
+================================================================================
+RESOURCES
+================================================================================
+
+React Context API Docs:
+https://react.dev/reference/react/useContext
+
+Expo Router Docs:
+https://docs.expo.dev/router/introduction/
+
+Context Best Practices:
+https://react.dev/learn/scaling-up-with-reducer-and-context
+
+================================================================================

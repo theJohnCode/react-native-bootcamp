@@ -1,5 +1,3 @@
-import { ImageSourcePropType } from "react-native";
-
 /**
  * ============================================================
  * ZoweHub — Laptop Listings Data
@@ -77,8 +75,8 @@ export type LaptopListing = {
   /** Condition grade of the laptop */
   condition: Condition;
 
-  /** Laptop product image. Supports remote URLs and bundled Expo assets. */
-  image: ImageSourcePropType;
+  /** URLs to the laptop's product images */
+  images: string[];
 
   /** Technical specifications */
   specs: {
@@ -132,8 +130,9 @@ export const brandFilters = [
   "Acer",
   "Razer",
   "MSI",
-
-  "Others",
+  "Samsung",
+  "LG",
+  "Other",
 ] as const;
 
 /** All available condition filter options */
@@ -147,12 +146,14 @@ export const conditionFilters = [
 /** Price range filter options with min/max bounds in Naira */
 export const priceRangeFilters = [
   { label: "All Prices", min: 0, max: Infinity },
-  { label: "Under ₦150K", min: 0, max: 150000 },
-  { label: "₦150K - ₦300K", min: 150000, max: 300000 },
+
+  { label: "Under ₦300K", min: 0, max: 300000 },
+
   { label: "₦300K - ₦500K", min: 300000, max: 500000 },
+
   { label: "₦500K - ₦800K", min: 500000, max: 800000 },
-  { label: "Above ₦800K", min: 800000
-    , max: Infinity },
+
+  { label: "Above ₦800K", min: 800000, max: Infinity },
 ] as const;
 
 // ---------------------------------------------------------------
@@ -178,7 +179,12 @@ export const initialListings: LaptopListing[] = [
     brand: "Apple",
     price: 690000,
     condition: "Grade A",
-    image: require("@/assets/images/macbook.png"),
+    images: [
+      "https://product.hstatic.net/200000722513/product/macbook_pro_13_m1_16gb_256gb_-_grey_1bfbcd2ab5ba43038a675b542b41a073_835f2ce4c7eb4a02a61c1a0db6e4a5d4_compact.png",
+      "https://product.hstatic.net/200000722513/product/3-2020-touch-bar-m1-16gb-256gb-grey-1_085f26b8c95a4796a6bffa02f89e2496_2ba621aaac734be58a9916c7ed6de30b_compact.jpg",
+      "https://product.hstatic.net/200000722513/product/3-2020-touch-bar-m1-16gb-256gb-grey-2_4397fa9fca594b1ca40e21f9430b6bd7_7d2fa8a09f8f48bcbff75c0864c7dada_compact.jpg",
+      "https://product.hstatic.net/200000722513/product/3-2020-touch-bar-m1-16gb-256gb-grey-3_b50451c3608b41c989c8b8bc6348511f_1ddaf49183174e28b1e85893245e48a9_compact.jpg",
+    ],
     specs: {
       processor: "Apple M1",
       ram: "8GB",
@@ -197,7 +203,12 @@ export const initialListings: LaptopListing[] = [
     brand: "HP",
     price: 385000,
     condition: "Brand New",
-    image: require("@/assets/images/HP.jpeg"),
+    images: [
+      "https://lankafix.com/wp-content/uploads/2025/08/SL-PC-CLEARANCE-HP-ELITEBOOK-840-G7-1-600x600.jpg",
+      "https://imagedelivery.net/pjXEwQ5mgCM0WtJa4WheRQ/0e30f0c6-be91-498d-5210-47cda1da2a00/ProductViewThumb",
+      "https://imagedelivery.net/pjXEwQ5mgCM0WtJa4WheRQ/8d548464-e167-43a3-5a54-e0be118e0f00/ProductViewThumb",
+      "https://imagedelivery.net/pjXEwQ5mgCM0WtJa4WheRQ/e5be2428-bc36-4747-b17a-5f4089125900/ProductViewThumb",
+    ],
     specs: {
       processor: "Intel Core i5",
       ram: "16GB",
@@ -216,9 +227,11 @@ export const initialListings: LaptopListing[] = [
     brand: "Dell",
     price: 430000,
     condition: "Grade A",
-    image: {
-      uri: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=640&q=80",
-    },
+    images: [
+      "https://www.tradeinn.com/f/13826/138265795/dell-latitude-7420-14-i7-1185g7-16gb-512gb-ssd-laptop.webp",
+      "https://www.tradeinn.com/f/13826/138265795_2/dell-latitude-7420-14-i7-1185g7-16gb-512gb-ssd-laptop.webp",
+      "https://www.tradeinn.com/f/13826/138265795_3/dell-latitude-7420-14-i7-1185g7-16gb-512gb-ssd-laptop.webp",
+    ],
     specs: {
       processor: "Intel Core i7",
       ram: "16GB",
@@ -237,7 +250,12 @@ export const initialListings: LaptopListing[] = [
     brand: "Lenovo",
     price: 260000,
     condition: "Brand New",
-    image: require("@/assets/images/jy.jpeg"),
+    images: [
+      "https://www.digitalstore.co.ke/cdn/shop/products/1_31b86caf-8606-4a5f-9e7f-725ffeb22b97_800x.jpg?v=1566998588",
+      "https://www.digitalstore.co.ke/cdn/shop/products/2_bc8d7343-0e9d-4a1d-9984-3438bc9a9d51_800x.jpg?v=1566998588",
+      "https://www.digitalstore.co.ke/cdn/shop/products/3_c0d341f3-c77f-4b6f-8e72-8ceb46b3ad6b_800x.jpg?v=1566998588",
+      "https://www.digitalstore.co.ke/cdn/shop/products/4_6d1ccbb1-ff4d-465e-aef2-74d546c2fc02_800x.jpg?v=1566998588",
+    ],
     specs: {
       processor: "Intel Core i5",
       ram: "8GB",
@@ -256,9 +274,12 @@ export const initialListings: LaptopListing[] = [
     brand: "Apple",
     price: 620000,
     condition: "Grade A",
-    image: {
-      uri: "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?auto=format&fit=crop&w=640&q=80",
-    },
+    images: [
+      "https://product.hstatic.net/200000722513/product/macbook_pro_13_m1_16gb_256gb_-_grey_1bfbcd2ab5ba43038a675b542b41a073_835f2ce4c7eb4a02a61c1a0db6e4a5d4_compact.png",
+      "https://product.hstatic.net/200000722513/product/3-2020-touch-bar-m1-16gb-256gb-grey-1_085f26b8c95a4796a6bffa02f89e2496_2ba621aaac734be58a9916c7ed6de30b_compact.jpg",
+      "https://product.hstatic.net/200000722513/product/3-2020-touch-bar-m1-16gb-256gb-grey-2_4397fa9fca594b1ca40e21f9430b6bd7_7d2fa8a09f8f48bcbff75c0864c7dada_compact.jpg",
+      "https://product.hstatic.net/200000722513/product/3-2020-touch-bar-m1-16gb-256gb-grey-3_b50451c3608b41c989c8b8bc6348511f_1ddaf49183174e28b1e85893245e48a9_compact.jpg",
+    ],
     specs: {
       processor: "Apple M1",
       ram: "8GB",
@@ -277,7 +298,11 @@ export const initialListings: LaptopListing[] = [
     brand: "HP",
     price: 335000,
     condition: "Brand New",
-    image: require("@/assets/images/TOP.jpeg"),
+    images: [
+      "https://static3.webx.pk/files/78721/Images/840-11-78721-2198538-140924112403133.jpg",
+      "https://www.notebookcheck.net/typo3temp/_processed_/7/b/csm_HPEliteBook840G5__1__16c13e5405.jpg",
+      "https://www.notebookcheck.net/typo3temp/_processed_/c/8/csm_2000930763_03_972ed12077.jpg",
+    ],
     specs: {
       processor: "Intel Core i5",
       ram: "8GB",
@@ -291,121 +316,26 @@ export const initialListings: LaptopListing[] = [
     },
   },
   {
-    id: "hp-envy-x360-13",
-    title: "HP Envy x360 13",
+    id: "hp-elitebook-840-g5",
+    title: "HP EliteBook 840",
     brand: "HP",
-    price: 520000,
+    price: 335000,
     condition: "Brand New",
-    image: require("@/assets/images/HP.jpeg"),
-    specs: {
-      processor: "Intel Core i7",
-      ram: "16GB",
-      storage: "512GB SSD",
-      batteryHealth: 100,
-    },
-    vendor: {
-      name: "John Code",
-      location: "Dugbe, Ibadan",
-      rating: 4.8,
-    },
-  },
-  {
-    id: "hp-envy-boxed-stock",
-    title: "HP Envy Boxed Stock",
-    brand: "HP",
-    price: 475000,
-    condition: "Brand New",
-    image: require("@/assets/images/TOP.jpeg"),
+    images: [
+      "https://static3.webx.pk/files/78721/Images/840-11-78721-2198538-140924112403133.jpg",
+      "https://www.notebookcheck.net/typo3temp/_processed_/7/b/csm_HPEliteBook840G5__1__16c13e5405.jpg",
+      "https://www.notebookcheck.net/typo3temp/_processed_/c/8/csm_2000930763_03_972ed12077.jpg",
+    ],
     specs: {
       processor: "Intel Core i5",
-      ram: "16GB",
-      storage: "512GB SSD",
-      batteryHealth: 100,
+      ram: "8GB",
+      storage: "256GB SSD",
+      batteryHealth: 88,
     },
     vendor: {
       name: "John Code",
-      location: "Challenge, Ibadan",
+      location: "UNIZIK, Awka",
       rating: 4.7,
-    },
-  },
-  {
-    id: "lenovo-yoga-2-in-1",
-    title: "Lenovo Yoga 2-in-1",
-    brand: "Lenovo",
-    price: 410000,
-    condition: "Grade A",
-    image: require("@/assets/images/jy.jpeg"),
-    specs: {
-      processor: "Intel Core i5",
-      ram: "8GB",
-      storage: "256GB SSD",
-      batteryHealth: 87,
-    },
-    vendor: {
-      name: "John Code",
-      location: "Ring Road, Ibadan",
-      rating: 4.6,
-    },
-  },
-  {
-    id: "asus-zenbook-14",
-    title: "Asus ZenBook 14",
-    brand: "Asus",
-    price: 445000,
-    condition: "Grade A",
-    image: {
-      uri: "https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=640&q=80",
-    },
-    specs: {
-      processor: "Intel Core i7",
-      ram: "16GB",
-      storage: "512GB SSD",
-      batteryHealth: 90,
-    },
-    vendor: {
-      name: "John Code",
-      location: "Akobo, Ibadan",
-      rating: 4.5,
-    },
-  },
-  {
-    id: "acer-swift-3",
-    title: "Acer Swift 3",
-    brand: "Acer",
-    price: 295000,
-    condition: "Grade A",
-    image: {
-      uri: "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2?auto=format&fit=crop&w=640&q=80",
-    },
-    specs: {
-      processor: "Intel Core i5",
-      ram: "8GB",
-      storage: "512GB SSD",
-      batteryHealth: 84,
-    },
-    vendor: {
-      name: "John Code",
-      location: "Mokola, Ibadan",
-      rating: 4.4,
-    },
-  },
-  {
-    id: "macbook-air-m1",
-    title: 'MacBook Air 13"',
-    brand: "Apple",
-    price: 575000,
-    condition: "Grade A",
-    image: require("@/assets/images/macbook.png"),
-    specs: {
-      processor: "Apple M1",
-      ram: "8GB",
-      storage: "256GB SSD",
-      batteryHealth: 89,
-    },
-    vendor: {
-      name: "John Code",
-      location: "Awka, Anambra",
-      rating: 4.8,
     },
   },
 ];

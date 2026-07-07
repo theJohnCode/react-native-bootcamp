@@ -1,4 +1,3 @@
-import { Image } from 'expo-image';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
 interface HeaderProps {
@@ -8,18 +7,18 @@ export default function Header({ onSearch }: HeaderProps) {
     return (
         <View style={styles.header}>
             <View style={styles.brandRow}>
-                {/* <View style={styles.logoMark}>
+                <View style={styles.logoMark}>
                     <Text style={styles.logoText}>
                         Z
                     </Text>
-                </View> */}
-                <Image source={require("@/assets/images/img.jpeg")} style={{width: 35, height: 35, borderRadius: 50}} />
-                <Text style={styles.brandText}>Laptop Mall </Text>
+                </View>
+                {/* <Image source={require("@/assets/images/icon.png")} style={{width: 30, height: 30, borderRadius: 50}} /> */}
+                <Text style={styles.brandText}>ZoweHub</Text>
             </View>
 
             <View style={styles.searchBar}>
                 <TextInput
-                    placeholder='🔍 Search Laptops'
+                    placeholder='🔍 Search Laptops...'
                     onChangeText={onSearch}
                     style={styles.searchInput} />
             </View>
@@ -44,8 +43,8 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     logoMark: {
-        width: 50,
-        height: 50,
+        width: 30,
+        height: 30,
         borderRadius: 50,
         backgroundColor: "#1D9E75",
         alignItems: "center",
@@ -62,13 +61,13 @@ const styles = StyleSheet.create({
         fontWeight: 700
     },
     searchBar: {
-        borderRadius: 30,
+        borderRadius: 8,
         padding: 5,
         backgroundColor: "#2c252530",
     },
     searchInput: {
         color: "#000",
-        width: 150,
+        width: 160,
     },
     filterIconButton: {
         width: 36,
