@@ -1,14 +1,11 @@
-import { useAuth } from '@/contexts/AuthContext';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function ProfileScreen() {
-  const { user } = useAuth();
-
+export default function CreateLaptopScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.content}>
-        <Text style={styles.title}>Welcome {user?.name || 'User'}</Text>
+        <Text style={styles.title}>Create Laptop</Text>
         <Text style={styles.subtitle}>Your account, saved laptops, and orders will appear here.</Text>
       </View>
     </SafeAreaView>

@@ -17,37 +17,30 @@
  * ============================================================
  */
 
+import { Colors } from '@/constants/theme';
+import {
+  faBell,
+  faHouse,
+  faMagnifyingGlass,
+  faPlus,
+  faUser,
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { Tabs } from 'expo-router';
-import { StyleSheet, Text, useColorScheme } from 'react-native';
-
-const tabColors = {
-  light: {
-    active: '#1D9E75',
-    inactive: '#6b7280',
-    border: '#e5e7eb',
-    background: '#ffffff',
-  },
-  dark: {
-    active: '#34d399',
-    inactive: '#9ca3af',
-    border: '#1f2937',
-    background: '#111827',
-  },
-} as const;
+import { StyleSheet, TouchableOpacity, useColorScheme } from 'react-native';
 
 export default function AppTabs() {
   const scheme = useColorScheme();
-  const colors = tabColors[scheme === 'dark' ? 'dark' : 'light'];
+  const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.active,
-        tabBarInactiveTintColor: colors.inactive,
+        tabBarActiveTintColor: '#1D9E75',
+        tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
-          backgroundColor: colors.background,
-          borderTopColor: colors.border,
+          // borderTopColor: colors.backgroundElement,
         },
         tabBarLabelStyle: styles.tabLabel,
       }}
@@ -57,7 +50,7 @@ export default function AppTabs() {
         options={{
           title: 'Home',
           tabBarIcon: ({ color, size }) => (
-            <Text style={[styles.tabIcon, { color, fontSize: size }]}>H</Text>
+            <FontAwesomeIcon icon={faHouse} color={String(color)} size={size} />
           ),
         }}
       />
@@ -67,17 +60,38 @@ export default function AppTabs() {
         options={{
           title: 'Explore',
           tabBarIcon: ({ color }) => (
-            <Text style={[styles.tabIcon, { color }]}>S</Text>
+            <FontAwesomeIcon icon={faMagnifyingGlass} color={String(color)} size={20} />
           ),
         }}
       />
 
       <Tabs.Screen
-        name="campus-hub"
+        name="create-laptop"
         options={{
-          title: 'Campus Hub',
+          title: "",
+          tabBarButton: (props) => (
+            <TouchableOpacity
+              {...Object.fromEntries(
+                Object.entries(props).filter(([, v]) => v !== null)
+              )}
+              style={styles.floatingButton}
+            >
+              <FontAwesomeIcon
+                icon={faPlus}
+                color="white"
+                size={24}
+              />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="notifications"
+        options={{
+          title: 'Notifications',
           tabBarIcon: ({ color }) => (
-            <Text style={[styles.tabIcon, { color }]}>C</Text>
+            <FontAwesomeIcon icon={faBell} color={String(color)} size={22} />
           ),
           tabBarBadge: 3,
         }}
@@ -88,7 +102,7 @@ export default function AppTabs() {
         options={{
           title: 'Profile',
           tabBarIcon: ({ color, size }) => (
-            <Text style={[styles.tabIcon, { color, fontSize: size }]}>P</Text>
+            <FontAwesomeIcon icon={faUser} color={String(color)} size={size} />
           ),
         }}
       />
@@ -102,9 +116,21 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
   },
-  tabIcon: {
-    fontSize: 20,
-    fontWeight: '700',
-    lineHeight: 24,
+  floatingButton: {
+    top: -20,
+    justifyContent: "center",
+    alignItems: "center",
+    width: 65,
+    height: 65,
+    borderRadius: 32.5,
+    backgroundColor: "#1D9E75",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.6,
+    shadowRadius: 5,
+    elevation: 8,
   },
 });
