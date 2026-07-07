@@ -36,7 +36,7 @@ export default function Banner({ title, subtitle, subtitle2, image, link }: Bann
                     {link && (
                         <Pressable onPress={() => openLink(link.url)} style={styles.learnMoreButton}>
                             <Text>{link.text}</Text>
-                        </Pressable>
+                        </Pressable>    
                     )}
                 </View>
 
