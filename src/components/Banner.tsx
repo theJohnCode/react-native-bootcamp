@@ -1,11 +1,20 @@
 import { Image } from "expo-image";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Linking, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface BannerProps {
   title: string;
   subtitle: string;
   subtitle2: string;
   image: string;
+  link?:{
+    url: string,
+    text: string,
+  }
+}
+const openlink = (url: string) =>{
+  Linking.openURL(url).catch(err=>
+    console.error("Couldnt load page",err)
+  )
 }
 
 export default function Banner({
@@ -13,6 +22,7 @@ export default function Banner({
   subtitle,
   subtitle2,
   image,
+  link
 }: BannerProps) {
   return (
     <View>
@@ -27,6 +37,12 @@ export default function Banner({
           <View style={styles.textContainer}>
             <Text style={styles.title}>{title}</Text>
             <Text style={styles.subtitle2}>{subtitle2}</Text>
+
+            {link && (
+              <Pressable onPress={()=> openlink(link.url)} style={styles.learnmore}>
+                <Text>{link.text}</Text>
+              </Pressable>
+            )}
           </View>
           {/* Right Image */}
           <Image
@@ -44,7 +60,20 @@ const styles = StyleSheet.create({
     fontSize: 22,
     lineHeight: 28,
     fontWeight: "700",
+    color: "#2e10a4"
   },
+  
+  learnmore:{
+    backgroundColor: "#ffff",
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    marginTop: 8,
+    width: 150,
+    alignItems: "center",
+
+  },
+
   banner: {
     backgroundColor: "#1D9E75", // luckywinz primary green
     borderRadius: 12,
@@ -61,13 +90,13 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   title: {
-    color: "#FFFFFF",
+    color: "#e7f8f0",
     fontSize: 18,
     fontWeight: "800",
     letterSpacing: 0.5,
   },
   subtitle2: {
-    color: "#D4F0E4", // Lighter green for secondary text
+    color: "#deece6", // Lighter green for secondary text
     fontSize: 15,
     fontWeight: "600",
   },

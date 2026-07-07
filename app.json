@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "luckywinztech",
-    "slug": "luckywinztech",
+    "name": "Welcome to OKSNTECH",
+    "slug": "OKSNTECH",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "luckywinztech",
+    "icon": "./assets/images/OKSN.jpeg",
+    "scheme": "OKSNTECH",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.image"
     },
     "android": {
       "adaptiveIcon": {

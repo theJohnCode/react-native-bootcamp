@@ -9,13 +9,19 @@ import { Spacing } from '@/constants/theme';
 import { brandFilters, conditionFilters, initialListings, priceRangeFilters } from '@/data/laptop';
 import { useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Link, router } from 'expo-router';
+import { linkTo } from 'expo-router/build/global-state/router';
 
 const BannerData = [
   {
-    title: "Welcome to ZoweHub",
+    title: "Welcome to OKSNTECH",
     subtitle: "Mainframe innovation",
-    subtitle2: "Development with ZoweHub.",
-    image: require('@/assets/images/icon.png')
+    subtitle2: "Development with OKEYSON.Ltd.",
+    image: require('@/assets/images/okk1.webp'),
+    link: {
+      url: 'https://wa.me/+17743515287',
+      text:'Click me!',
+    }         
   },
   {
     title: "Discover New Features",
@@ -26,7 +32,7 @@ const BannerData = [
   {
     title: "Join the Community",
     subtitle: "Developers and enthusiasts",
-    subtitle2: "ZoweHub community.",
+    subtitle2: "OKSNTECH community.",
     image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=200&q=80"
   },
 
@@ -56,30 +62,37 @@ export default function Home() {
    */
   const [selectedPriceRange, setSelectedPriceRange] = useState(0);
 
+  const [searchQuery, setSearchQuery] = useState('');
+
   const priceRangeLabels = useMemo(
     () => priceRangeFilters.map((filter) => filter.label),
     []
   );
 
+
   const filteredListings = useMemo(() => {
     const activePriceRange = priceRangeFilters[selectedPriceRange];
 
-    return initialListings.filter((listing) => {
-      const matchesBrand = selectedBrand === 'All' || listing.brand === selectedBrand;
-      const matchesCondition = selectedCondition === 'All' || listing.condition === selectedCondition;
+    return initialListings.filter((laptop) => {
+      const matchesBrand = selectedBrand === 'All' || laptop.brand === selectedBrand;
+      const matchesCondition = selectedCondition === 'All' || laptop.condition === selectedCondition;
       const matchesPrice =
-        listing.price >= activePriceRange.min && listing.price <= activePriceRange.max;
+        laptop.price >= activePriceRange.min && laptop.price <= activePriceRange.max;
+      const matchesSearch =
+        searchQuery.trim() === '' ||
+        laptop.title.toLowerCase().includes(searchQuery.toLowerCase());
 
-      return matchesBrand && matchesCondition && matchesPrice;
+      return matchesBrand && matchesCondition && matchesPrice && matchesSearch;
     });
-  }, [selectedBrand, selectedCondition, selectedPriceRange]);
+  }, [selectedBrand, selectedCondition, selectedPriceRange, searchQuery]);
+
+
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.content}>
         <View style={styles.screen}>
-          <Header />
-
+          <Header onSearch={setSearchQuery} />
 
           <FlatList
             key={columns}
@@ -88,8 +101,8 @@ export default function Home() {
             renderItem={({ item }) => (
               <LaptopCard
                 item={item}
-                onPress={() => console.log(`Navigate to details for ${item.title}`)}
-                isFavourite={false}
+                onPress={() => router.push(`/laptop/${item.id}` as any)}
+                isFeatured={false}
                 onToggleFavourite={() => console.log(`Toggle favourite for ${item.title}`)}
               />
             )}
@@ -144,6 +157,8 @@ export default function Home() {
                       setSelectedPriceRange(Math.max(0, nextIndex));
                     }}
                   />
+
+                  
                 </ScrollView>
               </View>
             }
@@ -152,7 +167,7 @@ export default function Home() {
               <View style={styles.emptyState}>
                 <ThemedText style={styles.emptyEmoji}>🔍</ThemedText>
                 <ThemedText type="smallBold">No laptops found</ThemedText>
-                <ThemedText themeColor="textSecondary" style={styles.emptyText}>
+                <ThemedText style={styles.emptyText}>
                   Try adjusting your search or filters
                 </ThemedText>
               </View>
