@@ -1,4 +1,5 @@
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { BannerProvider } from "@/contexts/BannerContext";
 import { ListingsProvider } from "@/contexts/ListingsContext";
 import { Stack, useRouter } from "expo-router";
 import { useEffect } from "react";
@@ -46,7 +47,9 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <ListingsProvider>
-        <RootLayoutContent />
+        <BannerProvider>
+          <RootLayoutContent />
+        </BannerProvider>
       </ListingsProvider>
     </AuthProvider>
   );

@@ -10,31 +10,12 @@ import { brandFilters, conditionFilters, initialListings, priceRangeFilters } fr
 import { useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-
-const BannerData = [
-  {
-    title: "Welcome to ZoweHub",
-    subtitle: "Mainframe innovation",
-    subtitle2: "Development with ZoweHub.",
-    image: require('@/assets/images/mock-ui.png')
-  },
-  {
-    title: "Discover New Features",
-    subtitle: "Mainframe technology",
-    subtitle2: "Newest tools and features.",
-    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=200&q=80"
-  },
-  {
-    title: "Join the Community",
-    subtitle: "Developers and enthusiasts",
-    subtitle2: "ZoweHub community.",
-    image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=200&q=80"
-  },
-
-];
+import { useBanner } from '@/contexts/BannerContext';
 
 export default function Home() {
   const { width } = useWindowDimensions();
+
+  const { banners } = useBanner();
 
   const isWide = width >= 720;
   const columns = isWide ? 3 : 2;
@@ -109,7 +90,7 @@ export default function Home() {
             ListHeaderComponent={
               <View style={styles.listHeader}>
                 <ScrollView horizontal={true} showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 16, paddingVertical: 16 }}>
-                  {BannerData.map((banner, index) => (
+                  {banners.map((banner, index) => (
                     <Banner key={index} {...banner} />
                   ))}
                 </ScrollView>

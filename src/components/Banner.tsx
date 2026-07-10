@@ -1,13 +1,9 @@
+import { BannerProps } from '@/data/banner';
 import { Image } from 'expo-image'
 import { router } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-interface BannerProps {
-    title: string;
-    subtitle: string;
-    subtitle2: string;
-    image: string;
-}
+
 
 export default function Banner({title, subtitle, subtitle2, image}: BannerProps) {
     return (
