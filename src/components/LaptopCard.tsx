@@ -23,9 +23,12 @@ type LaptopCardProps = {
      * manage favourites, the parent does.
      */
     onToggleFavourite?: () => void;
+
+    /** Called when the delete button is pressed */
+    onDelete?: () => void;
 };
 
-export default function LaptopCard({ item, onPress, isFavourite, onToggleFavourite }: LaptopCardProps) {
+export default function LaptopCard({ item, onPress, isFavourite, onToggleFavourite, onDelete }: LaptopCardProps) {
     const conditionColor = conditionColors[item.condition];
 
     return (
@@ -36,21 +39,35 @@ export default function LaptopCard({ item, onPress, isFavourite, onToggleFavouri
             <View style={styles.imageContainer}>
                 <Image source={{ uri: item.images[0] }} style={styles.productImage} />
 
-                {onToggleFavourite && (
-                    <Pressable
-                        onPress={(e) => {
-                            // Stop the press from also triggering the card's onPress
-                            e.stopPropagation();
-                            onToggleFavourite();
-                        }}
-                        style={styles.favouriteButton}
-                        hitSlop={8} // Makes the tap target bigger (easier to press)
-                    >
-                        <Text style={styles.heartIcon}>
-                            {isFavourite ? '♥' : '♡'}
-                        </Text>
-                    </Pressable>
-                )}
+                <View style={styles.buttonContainer}>
+                    {onToggleFavourite && (
+                        <Pressable
+                            onPress={(e) => {
+                                e.stopPropagation();
+                                onToggleFavourite();
+                            }}
+                            style={styles.actionButton}
+                            hitSlop={8}
+                        >
+                            <Text style={styles.heartIcon}>
+                                {isFavourite ? '♥' : '♡'}
+                            </Text>
+                        </Pressable>
+                    )}
+
+                    {onDelete && (
+                        <Pressable
+                            onPress={(e) => {
+                                e.stopPropagation();
+                                onDelete();
+                            }}
+                            style={styles.deleteButton}
+                            hitSlop={8}
+                        >
+                            <Text style={styles.deleteIcon}>🗑️</Text>
+                        </Pressable>
+                    )}
+                </View>
 
             </View>
 
@@ -91,6 +108,29 @@ const styles = StyleSheet.create({
         aspectRatio: 1.3, // Width:Height ratio — keeps images consistently shaped
         backgroundColor: '#F0F4F1', // Placeholder colour while image loads
     },
+    buttonContainer: {
+        position: 'absolute',
+        top: 8,
+        right: 8,
+        flexDirection: 'row',
+        gap: 8,
+    },
+    actionButton: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    deleteButton: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
     favouriteButton: {
         position: 'absolute',
         top: 8,
@@ -105,6 +145,9 @@ const styles = StyleSheet.create({
     heartIcon: {
         fontSize: 16,
         color: '#E74C3C', // Red heart colour
+    },
+    deleteIcon: {
+        fontSize: 16,
     },
     cardBody: {
         padding: 8,

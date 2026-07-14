@@ -1,52 +1,290 @@
 ================================================================================
-                    ZOWHUB - CONTEXT API ASSIGNMENT
-         Remove Prop Drilling with React Context & Listings Management
+    ZOWHUB - CONTEXT + REDUCER ASSIGNMENT (Beginner)
+      Build Create & Delete Laptop Listing Features
 ================================================================================
 
 OBJECTIVE:
-Remove all prop chains throughout the app. All screens should read laptop data
-from the ListingsContext instead of passing data through component hierarchies.
+Learn how to combine Context API + useReducer to manage app state.
+
+You will:
+✓ Add useReducer to ListingsContext (manages laptop data)
+✓ Expose dispatch function from context
+✓ Create a simple form to ADD new listings
+✓ Add a DELETE button to remove listings
+
+This is a GREAT way to manage state because:
+- Context keeps data in one place
+- Reducer keeps actions predictable
+- Both work together seamlessly
 
 ================================================================================
-PART 1: UNDERSTANDING THE CURRENT PROBLEM (Prop Drilling)
+PART 1: UNDERSTAND USEREDUCER (5 Minute Crash Course)
 ================================================================================
 
-Currently, the app likely passes laptop data through multiple levels:
-  HomeScreen → LaptopList → LaptopCard → Details
+Think of useReducer like a state machine:
 
-This is "prop drilling" - passing data through intermediate components that 
-don't need it. It makes the code harder to maintain and refactor.
+  CURRENT STATE + ACTION → REDUCER FUNCTION → NEW STATE
 
-THE SOLUTION: React Context API
-- Create a centralized ListingsContext
-- Provide it at the app root
-- Use the useListings() hook in any component that needs data
+Example:
+  State: { laptops: [...] }
+  Action: { type: 'ADD_LISTING', payload: { title: "MacBook", price: 500000 } }
+  Reducer: "Oh, ADD_LISTING? Add this laptop to the array!"
+  Result: { laptops: [..., newLaptop] }
+
+SYNTAX:
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  dispatch({ type: 'ADD_LISTING', payload: newLaptop });
 
 ================================================================================
-PART 2: THE LISTINGS CONTEXT (Already Created)
+PART 2: UPDATE LISTINGSCONTEXT (Main Task)
 ================================================================================
 
 File: src/contexts/ListingsContext.tsx
 
-Key Components:
-1. ListingsContext - The context object
-2. ListingsProvider - Wraps the app and provides data
-3. useListings() - Hook to access context data
+STEP 1: Import useReducer
+  import { useReducer } from 'react';
 
-The context provides:
-  - laptops: Laptop[] - Array of all laptop listings
-  - getLaptopById(id): Laptop | undefined - Find a specific laptop
+STEP 2: Create the reducer function ABOVE ListingsProvider
+
+  const listingsReducer = (state, action) => {
+    switch (action.type) {
+      case 'ADD_LISTING':
+        // Add the new laptop to the array
+        // Save to AsyncStorage
+        // Return new state
+        return {
+          laptops: [...state.laptops, action.payload]
+        };
+      
+      case 'DELETE_LISTING':
+        // Remove the laptop with matching ID
+        // Update AsyncStorage
+        // Return new state
+        return {
+          laptops: state.laptops.filter(laptop => laptop.id !== action.payload)
+        };
+      
+      default:
+        return state;
+    }
+  };
+
+STEP 3: Update ListingsContextType interface
+
+  interface ListingsContextType {
+    laptops: LaptopListing[];
+    getLaptopById: (id: string) => LaptopListing | undefined;
+    dispatch: React.Dispatch<any>;  // ← ADD THIS LINE
+  }
+
+STEP 4: Update ListingsProvider function
+
+  export function ListingsProvider({ children }: { children: ReactNode }) {
+    const [state, dispatch] = useReducer(listingsReducer, {
+      laptops: initialListings
+    });
+
+    const getLaptopById = (id: string) => {
+      return state.laptops.find((laptop) => laptop.id === id);
+    };
+
+    return (
+      <ListingsContext.Provider value={{ 
+        laptops: state.laptops, 
+        getLaptopById, 
+        dispatch  // ← EXPOSE DISPATCH HERE
+      }}>
+        {children}
+      </ListingsContext.Provider>
+    );
+  }
+
+STEP 5: Save/Load from AsyncStorage
+
+In your reducer, after each action (ADD_LISTING or DELETE_LISTING):
+  const updatedListings = [...]; // the new array
+  
+  // Save to AsyncStorage (non-blocking)
+  AsyncStorage.setItem('laptop_listings', JSON.stringify(updatedListings));
 
 ================================================================================
-PART 3: HOW TO USE THE CONTEXT IN YOUR COMPONENTS
+PART 3: BUILD THE CREATE LAPTOP FORM
 ================================================================================
 
-STEP 1: Import the hook
-  import { useListings } from '@/contexts/ListingsContext';
+File: src/app/(tabs)/create-laptop.tsx
 
-STEP 2: Use the hook in your component
-  export default function HomeScreen() {
-    const { laptops } = useListings();
+BASIC STRUCTURE:
+1. Import useState and useListings
+2. Create local state for form inputs:
+   - title
+   - brand
+   - price
+   - condition
+   - processor
+   - ram
+   - storage
+   - batteryHealth
+   - vendorName
+   - vendorLocation
+   - vendorRating
+
+3. Add TextInputs, Pickers, and a Slider for these fields
+
+4. Create handleAddListing function:
+   - Get dispatch from useListings()
+   - Create laptop object with all fields
+   - Generate unique ID: Math.random().toString()
+   - Dispatch ADD_LISTING action
+   - Clear form fields
+   - Show success message or navigate
+
+FORM STRUCTURE EXAMPLE:
+  <TextInput
+    placeholder="Laptop Title"
+    value={title}
+    onChangeText={setTitle}
+  />
+  
+  <TextInput
+    placeholder="Price"
+    value={price}
+    onChangeText={setPrice}
+    keyboardType="number-pad"
+  />
+  
+  <Picker
+    selectedValue={brand}
+    onValueChange={setBrand}
+  >
+    <Picker.Item label="Apple" value="Apple" />
+    <Picker.Item label="Dell" value="Dell" />
+    // ... rest of brands
+  </Picker>
+  
+  <Button title="Add Laptop" onPress={handleAddListing} />
+
+================================================================================
+PART 4: ADD DELETE FUNCTIONALITY
+================================================================================
+
+Update any screen that displays laptops (explore.tsx, index.tsx):
+
+1. Import useListings
+2. Add a delete button to LaptopCard component:
+   
+   const { dispatch } = useListings();
+   
+   <Pressable onPress={() => dispatch({ 
+     type: 'DELETE_LISTING', 
+     payload: laptop.id 
+   })}>
+     <Text>Delete</Text>
+   </Pressable>
+
+Or create a separate delete function:
+   const handleDelete = (id) => {
+     dispatch({ type: 'DELETE_LISTING', payload: id });
+   };
+
+================================================================================
+CHECKLIST - Complete These Steps
+================================================================================
+
+[ ] Step 1: Add useReducer to ListingsContext.tsx
+[ ] Step 2: Create listingsReducer function with ADD_LISTING and DELETE_LISTING
+[ ] Step 3: Export dispatch from context
+[ ] Step 4: Update ListingsContextType interface
+[ ] Step 5: Add AsyncStorage.setItem() calls in reducer
+[ ] Step 6: Build form UI in create-laptop.tsx
+[ ] Step 7: Wire up form inputs with useState
+[ ] Step 8: Create handleAddListing function
+[ ] Step 9: Test: Create a new laptop, verify it shows everywhere
+[ ] Step 10: Add delete button to laptop cards
+[ ] Step 11: Test: Delete a laptop, verify it's removed
+
+================================================================================
+KEY POINTS TO REMEMBER
+================================================================================
+
+1. Actions are just objects with a 'type' property:
+   { type: 'ADD_LISTING', payload: newLaptop }
+
+2. Reducer is a pure function (same input = same output):
+   const listingsReducer = (state, action) => { ... }
+
+3. Always return new state objects:
+   return { laptops: [...state.laptops, action.payload] }
+   NOT: state.laptops.push(...) ← DON'T DO THIS!
+
+4. Dispatch is available from context everywhere:
+   const { dispatch } = useListings();
+
+5. Save to AsyncStorage after state changes to persist data
+
+================================================================================
+BONUS CHALLENGES (If you finish early)
+================================================================================
+
+1. Load saved listings from AsyncStorage on app start
+   - In ListingsContext, use useEffect to load data
+   - Combine initialListings with AsyncStorage data
+
+2. Add edit functionality
+   - Create EDIT_LISTING action
+   - Update a laptop's details
+
+3. Add error handling
+   - Show error if form is incomplete
+   - Try/catch AsyncStorage calls
+
+4. Add loading state
+   - Show spinner while saving
+   - Disable button while loading
+
+5. Improve UI
+   - Add form validation (red borders on errors)
+   - Show success message after adding
+   - Add confirmation before delete
+
+================================================================================
+HELPFUL CODE SNIPPETS
+================================================================================
+
+CREATE UNIQUE ID:
+  const id = Date.now().toString();
+  // or
+  const id = Math.random().toString(36).substr(2, 9);
+
+FILTER ARRAY IN REDUCER:
+  state.laptops.filter(laptop => laptop.id !== actionId)
+
+SAVE TO ASYNCSTORAGE:
+  await AsyncStorage.setItem('laptop_listings', JSON.stringify(data));
+
+DISPATCH FROM COMPONENT:
+  const { dispatch } = useListings();
+  dispatch({ type: 'ADD_LISTING', payload: newLaptop });
+
+================================================================================
+COMMON MISTAKES TO AVOID
+================================================================================
+
+❌ Don't mutate state directly:
+   state.laptops.push(newLaptop);  // WRONG!
+
+✓ Do create new arrays:
+   [...state.laptops, newLaptop]   // RIGHT!
+
+❌ Don't forget to generate unique IDs:
+   { title: "MacBook" }            // WRONG! Missing id
+
+✓ Do include ID:
+   { id: "123", title: "MacBook" } // RIGHT!
+
+❌ Don't forget to save to AsyncStorage
+❌ Don't forget to handle both ADD and DELETE actions
+❌ Don't forget to expose dispatch from context
     
     return (
       <View>

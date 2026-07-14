@@ -1,4 +1,5 @@
 import ImageSlider from '@/components/ImageSlider';
+import { useListings } from '@/contexts/ListingsContext';
 import { conditionColors, initialListings } from '@/data/laptop';
 import { formatPrice } from '@/utils/format';
 import { useNavigation, router, useLocalSearchParams } from 'expo-router';
@@ -15,11 +16,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function LapTopDetailScreen() {
-  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { id } = useLocalSearchParams<{ id: string }>();
   const navigation = useNavigation();
   const [isFavorited, setIsFavorited] = useState(false);
+  const {getLaptopById} = useListings();
 
-  const laptop = initialListings.find((item) => item.id === id);
+  const laptop = getLaptopById(id);
+  // console.log('Laptop:', laptop);
 
   useLayoutEffect(() => {
     if (laptop) {

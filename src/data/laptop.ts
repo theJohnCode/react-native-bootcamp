@@ -24,30 +24,38 @@
 // TYPE DEFINITIONS
 // ---------------------------------------------------------------
 
+export const CONDITIONS = [
+  'Brand New',
+  'Grade A',
+  'Fairly Used',
+]
 /**
  * The condition grade of a laptop.
  * Nigerian pre-owned market uses these standard grades:
  * - 'Brand New' → Brand new, unopened
  * - 'Grade A'    → Excellent condition, minimal wear
  */
-export type Condition = "Brand New" | "Grade A";
+export type Condition = typeof CONDITIONS[number];
 
 /**
  * The brands we currently support on ZoweHub.
  * This is a TypeScript union type — the value MUST be one of these strings.
  */
-export type Brand =
-  | "Apple"
-  | "HP"
-  | "Dell"
-  | "Lenovo"
-  | "Asus"
-  | "Acer"
-  | "Razer"
-  | "MSI"
-  | "Samsung"
-  | "LG"
-  | "Other";
+export const BRANDS = [
+  "Apple",
+  "HP",
+  "Dell",
+  "Lenovo",
+  "Asus",
+  "Acer",
+  "Razer",
+  "MSI",
+  "Samsung",
+  "LG",
+  "Other",
+] as const;
+
+export type Brand = typeof BRANDS[number];
 
 /**
  * WEEK 2 CONCEPT: TypeScript Interfaces / Types

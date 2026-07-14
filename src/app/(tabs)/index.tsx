@@ -1,4 +1,4 @@
-import { FlatList, Platform, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { FlatList, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import Banner from '@/components/Banner';
 import { FilterChip } from '@/components/FilterChip';
@@ -6,16 +6,18 @@ import Header from "@/components/Header";
 import LaptopCard from '@/components/LaptopCard';
 import { ThemedText } from '@/components/ui/theme-text';
 import { Spacing } from '@/constants/theme';
-import { brandFilters, conditionFilters, initialListings, priceRangeFilters } from '@/data/laptop';
+import { useBanner } from '@/contexts/BannerContext';
+import { useListings } from '@/contexts/ListingsContext';
+import { brandFilters, conditionFilters, priceRangeFilters } from '@/data/laptop';
+import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
-import { useBanner } from '@/contexts/BannerContext';
 
 export default function Home() {
   const { width } = useWindowDimensions();
 
   const { banners } = useBanner();
+  const { laptops, dispatch } = useListings();
 
   const isWide = width >= 720;
   const columns = isWide ? 3 : 2;
@@ -49,7 +51,7 @@ export default function Home() {
   const filteredListings = useMemo(() => {
     const activePriceRange = priceRangeFilters[selectedPriceRange];
 
-    return initialListings.filter((laptop) => {
+    return laptops.filter((laptop) => {
       const matchesBrand = selectedBrand === 'All' || laptop.brand === selectedBrand;
       const matchesCondition = selectedCondition === 'All' || laptop.condition === selectedCondition;
       const matchesPrice =
@@ -60,7 +62,7 @@ export default function Home() {
 
       return matchesBrand && matchesCondition && matchesPrice && matchesSearch;
     });
-  }, [selectedBrand, selectedCondition, selectedPriceRange, searchQuery]);
+  }, [laptops, selectedBrand, selectedCondition, selectedPriceRange, searchQuery]);
 
 
 
@@ -71,6 +73,7 @@ export default function Home() {
           <Header onSearch={setSearchQuery}  />
 
           <FlatList
+            style={styles.flatList}
             key={columns}
             data={filteredListings}
             keyExtractor={(item) => item.id}
@@ -80,6 +83,7 @@ export default function Home() {
                 onPress={() => router.push(`/laptop/${item.id}` as any)}
                 isFavourite={false}
                 onToggleFavourite={() => console.log(`Toggle favourite for ${item.title}`)}
+                onDelete={() => dispatch({ type: 'DELETE_LISTING', payload: item.id })}
               />
             )}
             showsVerticalScrollIndicator={false}
@@ -158,6 +162,10 @@ export default function Home() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+    flexDirection: 'column',
+  },
+  flatList: {
+    flex: 1,
   },
   safeArea: {
     flex: 1,
@@ -169,7 +177,6 @@ const styles = StyleSheet.create({
     maxWidth: 800, // Cap width on tablets/web
     paddingHorizontal: 16,
     paddingTop: 8,
-    paddingBottom: Platform.select({ ios: 50, android: 80 }) ?? 0,
   },
   gridRow: {
     gap: 8,
