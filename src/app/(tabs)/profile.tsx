@@ -1,15 +1,29 @@
 import { useAuth } from '@/contexts/AuthContext';
-import { StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProfileScreen() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    logout();
+    router.replace('/login');
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.content}>
         <Text style={styles.title}>Welcome {user?.name || 'User'}</Text>
         <Text style={styles.subtitle}>Your account, saved laptops, and orders will appear here.</Text>
+
+        {/* ADD a logout button */}
+        <Pressable style={{ marginTop: 20, padding: 10, backgroundColor: 'red', borderRadius: 5, alignItems: "center" }}
+          onPress={handleLogout}>
+          <Text style={{ color: 'white' }}>Logout</Text>
+        </Pressable>
+
       </View>
     </SafeAreaView>
   );

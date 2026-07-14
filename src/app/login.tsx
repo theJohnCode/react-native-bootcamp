@@ -14,7 +14,7 @@ import { Colors } from '@/constants/theme';
 
 export default function LoginScreen() {
   const [username, setUsername] = useState('');
-  const { login, skipLogin } = useAuth();
+  const { login } = useAuth();
   const scheme = useColorScheme();
   const colors = Colors[scheme === 'dark' ? 'dark' : 'light'];
 
@@ -60,14 +60,14 @@ export default function LoginScreen() {
           <Text style={styles.loginButtonText}>Login</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.skipButton}
           onPress={skipLogin}
         >
           <Text style={[styles.skipButtonText, { color: '#1D9E75' }]}>
             Skip for now
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </KeyboardAvoidingView>
   );

@@ -1,39 +1,61 @@
-import { createContext, useState, useContext, ReactNode } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
 interface User {
     name: string;
     loggedIn: boolean;
 }
-
 interface AuthContextType {
     user: User | null;
     login: (username: string) => void;
     logout: () => void;
-    hasSeenLoginPrompt: boolean;
-    skipLogin: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
-    const [hasSeenLoginPrompt, setHasSeenLoginPrompt] = useState(false);
 
-    const login = (username: string) => {
-        setUser({ name: username, loggedIn: true });
-        setHasSeenLoginPrompt(true);
+    // Initialize user state from AsyncStorage on mount
+    useEffect(() => {
+        const loadUser = async () => {
+            try {
+                const userData = await AsyncStorage.getItem('user');
+                if (userData) {
+                    const parsedUser = JSON.parse(userData);
+                    setUser(parsedUser);
+                }
+            } catch (error) {
+                console.error('Error loading user from AsyncStorage:', error);
+            }
+        };
+        
+        loadUser();
+    }, []);
+
+    const login = async (username: string) => {
+        try {
+            // Store the user data in AsyncStorage
+            await AsyncStorage.setItem('user', JSON.stringify({ name: username, loggedIn: true }));
+
+            // Get the user data from AsyncStorage and set it to state
+            const userData = await AsyncStorage.getItem('user');
+            if (userData) {
+                const parsedUser = JSON.parse(userData);
+                setUser(parsedUser);
+            }
+        } catch (error) {
+            console.error('Error during login:', error);
+        }
     };
 
     const logout = () => {
         setUser(null);
-    };
-
-    const skipLogin = () => {
-        setHasSeenLoginPrompt(true);
+        AsyncStorage.removeItem('user')
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, hasSeenLoginPrompt, skipLogin }}>
+        <AuthContext.Provider value={{ user, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
