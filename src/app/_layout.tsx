@@ -8,12 +8,11 @@ function RootLayoutContent() {
   const router = useRouter();
   const { user } = useAuth();
 
-  console.log(user);
 
   useEffect(() => {
     // Route based on auth state after component mounts
     const timer = setTimeout(() => {
-      if (!user || !user.loggedIn) {
+      if (!user || !user.email) {
         router.replace("/login");
       } else {
         router.replace("/(tabs)");
@@ -37,6 +36,7 @@ function RootLayoutContent() {
       }}
     >
       <Stack.Screen name="login" options={{ headerShown: false }} />
+      <Stack.Screen name="register" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="laptop/[id]" options={{ title: 'Laptop Details', headerShown: true }} />
     </Stack>

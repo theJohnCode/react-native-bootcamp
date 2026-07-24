@@ -19,8 +19,6 @@ export default function Home() {
   const { banners } = useBanner();
   const { laptops, dispatch } = useListings();
 
-  console.log(laptops)
-
   const isWide = width >= 720;
   const columns = isWide ? 3 : 2;
 
