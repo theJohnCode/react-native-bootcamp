@@ -60,7 +60,7 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
             // Merge with initial listings, avoiding duplicates
             const allListings = [...initialListings];
             parsed.forEach((savedLaptop: LaptopListing) => {
-              if (!allListings.find(l => l.id === savedLaptop.id)) {
+              if (!allListings.find(laptop => laptop.id === savedLaptop.id)) {
                 allListings.push(savedLaptop);
               }
             });

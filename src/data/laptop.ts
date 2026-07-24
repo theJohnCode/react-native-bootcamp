@@ -24,18 +24,14 @@
 // TYPE DEFINITIONS
 // ---------------------------------------------------------------
 
-export const CONDITIONS = [
-  'Brand New',
-  'Grade A',
-  'Fairly Used',
-]
+export const CONDITIONS = ["Brand New", "Grade A", "Fairly Used"];
 /**
  * The condition grade of a laptop.
  * Nigerian pre-owned market uses these standard grades:
  * - 'Brand New' → Brand new, unopened
  * - 'Grade A'    → Excellent condition, minimal wear
  */
-export type Condition = typeof CONDITIONS[number];
+export type Condition = (typeof CONDITIONS)[number];
 
 /**
  * The brands we currently support on ZoweHub.
@@ -55,7 +51,7 @@ export const BRANDS = [
   "Other",
 ] as const;
 
-export type Brand = typeof BRANDS[number];
+export type Brand = (typeof BRANDS)[number];
 
 /**
  * WEEK 2 CONCEPT: TypeScript Interfaces / Types
@@ -121,6 +117,7 @@ export const conditionColors: Record<
 > = {
   "Brand New": { background: "#DDF7EA", text: "#146B43" },
   "Grade A": { background: "#E7F3D7", text: "#426B10" },
+  "Fairly Used": { background: "#FFF4E5", text: "#A65C00" },
 };
 
 // ---------------------------------------------------------------

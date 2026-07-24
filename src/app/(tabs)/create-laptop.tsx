@@ -10,7 +10,7 @@ export default function CreateLaptopScreen() {
 
   // Form state
   const [title, setTitle] = useState('');
-  const [brand, setBrand] = useState<Brand>('Apple');
+  const [brand, setBrand] = useState<Brand>('HP');
   const [price, setPrice] = useState('');
   const [condition, setCondition] = useState<Condition>('Brand New');
   const [processor, setProcessor] = useState('');
@@ -30,12 +30,12 @@ export default function CreateLaptopScreen() {
 
     // Create the new laptop object
     const newLaptop: LaptopListing = {
-      id: Date.now().toString(),
+      id: Date.now().toString(), // Simple unique ID based on timestamp
       title,
       brand,
       price: parseInt(price),
       condition,
-      images: [`https://placehold.co/300x200?text=${title}`], // Placeholder image
+      images: [`https://picsum.photos/seed/${title}/300/200`], // Placeholder image
       specs: {
         processor,
         ram,
@@ -105,7 +105,7 @@ export default function CreateLaptopScreen() {
           <TextInput
             style={styles.input}
             placeholder="e.g., 500000"
-            keyboardType="number-pad"
+            keyboardType="numeric"
             value={price}
             onChangeText={setPrice}
           />
