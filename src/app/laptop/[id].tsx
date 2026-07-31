@@ -1,9 +1,9 @@
-import ImageSlider from '@/components/ImageSlider';
-import { useListings } from '@/contexts/ListingsContext';
-import { conditionColors, initialListings } from '@/data/laptop';
-import { formatPrice } from '@/utils/format';
-import { useNavigation, router, useLocalSearchParams } from 'expo-router';
-import { useLayoutEffect, useMemo, useState } from 'react';
+import ImageSlider from "@/components/ImageSlider";
+import { useListings } from "@/contexts/ListingsContext";
+import { conditionColors } from "@/data/laptop";
+import { formatPrice } from "@/utils/format";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
+import { useLayoutEffect, useMemo, useState } from "react";
 import {
   Pressable,
   ScrollView,
@@ -12,14 +12,14 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function LapTopDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const navigation = useNavigation();
   const [isFavorited, setIsFavorited] = useState(false);
-  const {getLaptopById} = useListings();
+  const { getLaptopById } = useListings();
 
   const laptop = getLaptopById(id);
   // console.log('Laptop:', laptop);
@@ -30,10 +30,16 @@ export default function LapTopDetailScreen() {
         headerShown: true,
         title: laptop.title,
         header: () => {
-          <View style={{ height: 120, backgroundColor: 'blue', justifyContent: 'center' }}>
-            <Text style={{ color: 'white' }}>{laptop.title}</Text>
-          </View>
-        }
+          <View
+            style={{
+              height: 120,
+              backgroundColor: "blue",
+              justifyContent: "center",
+            }}
+          >
+            <Text style={{ color: "white" }}>{laptop.title}</Text>
+          </View>;
+        },
       });
     }
   }, [laptop, navigation]);
@@ -44,10 +50,10 @@ export default function LapTopDetailScreen() {
     }
 
     return [
-      laptop.specs.ram,
-      laptop.specs.storage,
-      laptop.specs.processor,
-      `Battery Health: ${laptop.specs.batteryHealth}% Health`,
+      laptop.ram,
+      laptop.storage,
+      laptop.processor,
+      `Battery Health: ${laptop.battery_health}% Health`,
     ];
   }, [laptop]);
 
@@ -56,9 +62,17 @@ export default function LapTopDetailScreen() {
       return [];
     }
 
-    return laptop.condition === 'Brand New'
-      ? ['Unused and sealed', 'Tested & Certified', 'Includes clean setup support']
-      : ['Minimal cosmetic wear', 'Tested & Certified', 'Screen and keyboard checked'];
+    return laptop.condition === "Brand New"
+      ? [
+          "Unused and sealed",
+          "Tested & Certified",
+          "Includes clean setup support",
+        ]
+      : [
+          "Minimal cosmetic wear",
+          "Tested & Certified",
+          "Screen and keyboard checked",
+        ];
   }, [laptop]);
 
   if (!laptop) {
@@ -66,8 +80,13 @@ export default function LapTopDetailScreen() {
       <SafeAreaView style={styles.container}>
         <View style={styles.notFound}>
           <Text style={styles.notFoundTitle}>Laptop not found</Text>
-          <Text style={styles.notFoundText}>This listing may have been removed.</Text>
-          <Pressable style={styles.notFoundButton} onPress={() => router.back()}>
+          <Text style={styles.notFoundText}>
+            This listing may have been removed.
+          </Text>
+          <Pressable
+            style={styles.notFoundButton}
+            onPress={() => router.back()}
+          >
             <Text style={styles.notFoundButtonText}>Go Back</Text>
           </Pressable>
         </View>
@@ -78,23 +97,25 @@ export default function LapTopDetailScreen() {
   const conditionColor = conditionColors[laptop.condition];
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <StatusBar barStyle="dark-content" />
 
       <View style={styles.floatingHeader}>
-
         <TouchableOpacity
           style={styles.iconButton}
           onPress={() => setIsFavorited((current) => !current)}
         >
           <Text style={[styles.heartIcon, isFavorited && styles.heartActive]}>
-            {isFavorited ? '♥' : '♡'}
+            {isFavorited ? "♥" : "♡"}
           </Text>
         </TouchableOpacity>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
-        <ImageSlider images={laptop.images} />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContainer}
+      >
+        <ImageSlider images={laptop.images.map((img) => img.image_url)} />
 
         <View style={styles.contentBlock}>
           <View style={styles.titleRow}>
@@ -139,17 +160,8 @@ export default function LapTopDetailScreen() {
 
         <View style={styles.sectionBlock}>
           <Text style={styles.sectionTitle}>Seller Information</Text>
-          <View style={styles.sellerRow}>
-            <View style={styles.avatarMock}>
-              <Text style={styles.avatarText}>{laptop.vendor.name.charAt(0)}</Text>
-            </View>
-            <View style={styles.sellerInfo}>
-              <Text style={styles.sellerName}>{laptop.vendor.name}</Text>
-              <Text style={styles.sellerRating}>
-                ★ {laptop.vendor.rating}/5 stars • {laptop.vendor.location}
-              </Text>
-            </View>
-          </View>
+          <Text style={styles.sellerName}>Seller ID: {laptop.user_id}</Text>
+          {/* TODO: Fetch seller profile data from profiles table */}
         </View>
       </ScrollView>
 
@@ -168,28 +180,28 @@ export default function LapTopDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
   },
   scrollContainer: {
     paddingBottom: 108,
   },
   floatingHeader: {
-    position: 'absolute',
+    position: "absolute",
     top: 200,
     right: 16,
     zIndex: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   iconButton: {
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     width: 40,
     height: 40,
     borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
@@ -198,26 +210,26 @@ const styles = StyleSheet.create({
   heartIcon: {
     fontSize: 22,
     lineHeight: 24,
-    color: '#1f2937',
+    color: "#1f2937",
   },
   heartActive: {
-    color: '#E74C3C',
+    color: "#E74C3C",
   },
   contentBlock: {
     padding: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: "#f3f4f6",
   },
   titleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
     gap: 10,
   },
   modelText: {
     fontSize: 22,
-    fontWeight: '800',
-    color: '#111827',
+    fontWeight: "800",
+    color: "#111827",
     flex: 1,
   },
   badge: {
@@ -228,68 +240,68 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   priceText: {
     fontSize: 24,
-    fontWeight: '800',
-    color: '#059669',
+    fontWeight: "800",
+    color: "#059669",
     marginTop: 10,
   },
   sectionBlock: {
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: "#f3f4f6",
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '700',
-    color: '#374151',
+    fontWeight: "700",
+    color: "#374151",
     marginBottom: 12,
   },
   specItemRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 10,
   },
   bulletPoint: {
     marginRight: 10,
     fontSize: 13,
-    color: '#059669',
+    color: "#059669",
   },
   specItemText: {
     fontSize: 14,
-    color: '#4b5563',
+    color: "#4b5563",
     flex: 1,
   },
   conditionGradeHeader: {
     fontSize: 14,
-    fontWeight: '700',
-    color: '#1f2937',
+    fontWeight: "700",
+    color: "#1f2937",
     marginBottom: 4,
   },
   bulletText: {
     fontSize: 14,
-    color: '#4b5563',
+    color: "#4b5563",
     lineHeight: 22,
   },
   sellerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   avatarMock: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#e0f2fe',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#e0f2fe",
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: 12,
   },
   avatarText: {
-    color: '#0369a1',
-    fontWeight: '700',
+    color: "#0369a1",
+    fontWeight: "700",
     fontSize: 18,
   },
   sellerInfo: {
@@ -297,79 +309,79 @@ const styles = StyleSheet.create({
   },
   sellerName: {
     fontSize: 14,
-    fontWeight: '700',
-    color: '#1f2937',
+    fontWeight: "700",
+    color: "#1f2937",
   },
   sellerRating: {
     fontSize: 12,
-    color: '#6b7280',
+    color: "#6b7280",
     marginTop: 2,
   },
   footerActions: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#ffffff',
+    backgroundColor: "#ffffff",
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 24,
-    flexDirection: 'row',
+    flexDirection: "row",
     borderTopWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: "#e5e7eb",
   },
   btn: {
     flex: 1,
     height: 48,
     borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginHorizontal: 6,
   },
   btnPrimary: {
-    backgroundColor: '#059669',
+    backgroundColor: "#059669",
   },
   btnPrimaryText: {
-    color: '#ffffff',
-    fontWeight: '700',
+    color: "#ffffff",
+    fontWeight: "700",
     fontSize: 14,
   },
   btnSecondary: {
     borderWidth: 1,
-    borderColor: '#059669',
-    backgroundColor: '#ffffff',
+    borderColor: "#059669",
+    backgroundColor: "#ffffff",
   },
   btnSecondaryText: {
-    color: '#059669',
-    fontWeight: '700',
+    color: "#059669",
+    fontWeight: "700",
     fontSize: 14,
   },
   notFound: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     padding: 24,
   },
   notFoundTitle: {
     fontSize: 22,
-    fontWeight: '800',
-    color: '#111827',
+    fontWeight: "800",
+    color: "#111827",
   },
   notFoundText: {
     fontSize: 14,
-    color: '#6b7280',
+    color: "#6b7280",
     marginTop: 8,
     marginBottom: 18,
-    textAlign: 'center',
+    textAlign: "center",
   },
   notFoundButton: {
-    backgroundColor: '#059669',
+    backgroundColor: "#059669",
     paddingHorizontal: 18,
     paddingVertical: 12,
     borderRadius: 8,
   },
   notFoundButtonText: {
-    color: '#ffffff',
-    fontWeight: '700',
+    color: "#ffffff",
+    fontWeight: "700",
   },
 });
