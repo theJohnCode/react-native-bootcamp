@@ -1,28 +1,39 @@
+import { LaptopImage, LaptopListing } from "@/data/laptop";
+import { supabase } from "@/utils/supabase";
 import {
   createContext,
-  useContext,
   ReactNode,
-  useReducer,
+  useCallback,
+  useContext,
   useEffect,
+  useReducer,
 } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { LaptopListing } from "@/data/laptop";
-import { supabase } from "@/utils/supabase";
 
 interface ListingsState {
   laptops: LaptopListing[];
+  loading: boolean;
+  error: string | null;
 }
 
 interface ListingsContextType {
   laptops: LaptopListing[];
+  loading: boolean;
+  error: string | null;
   getLaptopById: (id: string) => LaptopListing | undefined;
+  refreshListings: () => Promise<void>;
   dispatch: React.Dispatch<ListingsAction>;
 }
 
 type ListingsAction =
   | { type: "ADD_LISTING"; payload: LaptopListing }
   | { type: "DELETE_LISTING"; payload: string }
-  | { type: "LOAD_LISTINGS"; payload: LaptopListing[] }; // payload is the array of listings
+  | { type: "LOAD_LISTINGS"; payload: LaptopListing[] }
+  | { type: "SET_LOADING"; payload: boolean }
+  | { type: "SET_ERROR"; payload: string | null };
+
+type SupabaseLaptopListing = Omit<LaptopListing, "images"> & {
+  laptop_images?: LaptopImage[] | null;
+};
 
 const ListingsContext = createContext<ListingsContextType | null>(null);
 
@@ -33,24 +44,26 @@ const listingsReducer = (
 ): ListingsState => {
   switch (action.type) {
     case "ADD_LISTING": {
-      const updatedListings = [...state.laptops, action.payload];
-      // Save to AsyncStorage
-      AsyncStorage.setItem("laptop_listings", JSON.stringify(updatedListings));
-      return { laptops: updatedListings };
+      return { ...state, laptops: [action.payload, ...state.laptops] };
     }
 
     case "DELETE_LISTING": {
       const updatedListings = state.laptops.filter(
         (laptop) => laptop.id !== action.payload,
       );
-      // Save to AsyncStorage
-      AsyncStorage.setItem("laptop_listings", JSON.stringify(updatedListings));
-      return { laptops: updatedListings };
+      return { ...state, laptops: updatedListings };
     }
 
     case "LOAD_LISTINGS": {
-      // Fetch from Supabase
-      return { laptops: action.payload };
+      return { ...state, laptops: action.payload, error: null };
+    }
+
+    case "SET_LOADING": {
+      return { ...state, loading: action.payload };
+    }
+
+    case "SET_ERROR": {
+      return { ...state, error: action.payload };
     }
 
     default:
@@ -61,26 +74,67 @@ const listingsReducer = (
 export function ListingsProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(listingsReducer, {
     laptops: [],
+    loading: true,
+    error: null,
   });
 
-  // Load saved listings from AsyncStorage on mount
-  useEffect(() => {
-    const loadListings = async () => {
-      try {
-        // Load from Supabase
-        const { data, error } = await supabase.from("laptops").select("*");
-        if (error) {
-          console.error("Error loading listings:", error);
-          return;
-        }
+  const refreshListings = useCallback(async () => {
+    dispatch({ type: "SET_LOADING", payload: true });
 
-        dispatch({ type: "LOAD_LISTINGS", payload: data || [] });
-      } catch (error) {
-        console.error("Error loading listings:", error);
+    try {
+      const { data, error } = await supabase
+        .from("laptops")
+        .select("*, laptop_images(*)")
+        .order("created_at", { ascending: false });
+
+        // console.log('Supabase data:', data.laptop_images);
+
+      if (error) {
+        throw error;
       }
-    };
-    loadListings();
+
+      const listings = ((data || []) as SupabaseLaptopListing[]).map(
+        ({ laptop_images, ...laptop }) => ({
+          ...laptop,
+          images: [...(laptop_images || [])].sort(
+            (a, b) => a.sort_order - b.sort_order,
+          ),
+        }),
+      );
+
+      dispatch({ type: "LOAD_LISTINGS", payload: listings });
+    } catch (error: any) {
+      const message = error.message || "Error loading listings";
+      console.error("Error loading listings:", error);
+      dispatch({ type: "SET_ERROR", payload: message });
+    } finally {
+      dispatch({ type: "SET_LOADING", payload: false });
+    }
   }, []);
+
+  useEffect(() => {
+    refreshListings();
+  }, [refreshListings]);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("listings-context")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "laptops" },
+        () => refreshListings(),
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "laptop_images" },
+        () => refreshListings(),
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [refreshListings]);
 
   const getLaptopById = (id: string) => {
     return state.laptops.find((laptop) => laptop.id === id);
@@ -88,7 +142,14 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
 
   return (
     <ListingsContext.Provider
-      value={{ laptops: state.laptops, getLaptopById, dispatch }}
+      value={{
+        laptops: state.laptops,
+        loading: state.loading,
+        error: state.error,
+        getLaptopById,
+        refreshListings,
+        dispatch,
+      }}
     >
       {children}
     </ListingsContext.Provider>

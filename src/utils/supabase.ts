@@ -48,7 +48,7 @@ export async function uploadImage(
       .from(BUCKET_NAME)
       .upload(`${fileName}`, arrayBuffer, {
         contentType: "image/jpeg",
-        upsert: true,
+        upsert: false,
       });
 
     return { data, error };

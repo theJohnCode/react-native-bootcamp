@@ -17,7 +17,7 @@ export default function Home() {
   const { width } = useWindowDimensions();
 
   const { banners } = useBanner();
-  const { laptops, dispatch } = useListings();
+  const { laptops, loading, error, dispatch } = useListings();
 
   const isWide = width >= 720;
   const columns = isWide ? 3 : 2;
@@ -145,10 +145,20 @@ export default function Home() {
 
             ListEmptyComponent={
               <View style={styles.emptyState}>
-                <ThemedText style={styles.emptyEmoji}>🔍</ThemedText>
-                <ThemedText type="smallBold">No laptops found</ThemedText>
+                <ThemedText style={styles.emptyEmoji}>
+                  {loading ? "⏳" : error ? "⚠️" : "🔍"}
+                </ThemedText>
+                <ThemedText type="smallBold">
+                  {loading
+                    ? "Loading laptops..."
+                    : error
+                      ? "Could not load laptops"
+                      : "No laptops found"}
+                </ThemedText>
                 <ThemedText themeColor="textSecondary" style={styles.emptyText}>
-                  Try adjusting your search or filters
+                  {loading
+                    ? "Fetching listings from Supabase"
+                    : error || "Try adjusting your search or filters"}
                 </ThemedText>
               </View>
             }

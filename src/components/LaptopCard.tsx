@@ -30,6 +30,9 @@ type LaptopCardProps = {
 
 export default function LaptopCard({ item, onPress, isFavourite, onToggleFavourite, onDelete }: LaptopCardProps) {
     const conditionColor = conditionColors[item.condition];
+    const primaryImage =
+        item.images.find((image) => image.is_primary)?.image_url ||
+        item.images[0]?.image_url;
 
     return (
         <Pressable onPress={onPress}
@@ -37,7 +40,17 @@ export default function LaptopCard({ item, onPress, isFavourite, onToggleFavouri
 
             {/* Image Container and the favourite button */}
             <View style={styles.imageContainer}>
-                <Image source={{ uri: item.images[0] }} style={styles.productImage} />
+                {primaryImage ? (
+                    <Image
+                        source={{ uri: primaryImage }}
+                        style={styles.productImage}
+                        onError={(error) => {
+                            console.log("Laptop card image failed to load:", primaryImage, error);
+                        }}
+                    />
+                ) : (
+                    <View style={styles.productImage} />
+                )}
 
                 <View style={styles.buttonContainer}>
                     {onToggleFavourite && (

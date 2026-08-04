@@ -1,4 +1,5 @@
 import { useAuth } from "@/contexts/AuthContext";
+import { useListings } from "@/contexts/ListingsContext";
 import { Brand, BRANDS, Condition, CONDITIONS } from "@/data/laptop";
 import { getPublicImageUrl, supabase, uploadImage } from "@/utils/supabase";
 import { Picker } from "@react-native-picker/picker";
@@ -20,6 +21,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function CreateLaptopScreen() {
   const { user } = useAuth();
+  const { refreshListings } = useListings();
 
 
   // Form state
@@ -115,6 +117,8 @@ export default function CreateLaptopScreen() {
         .insert(imageRecords);
 
       if (imagesError) throw imagesError;
+
+      await refreshListings();
 
       Alert.alert("Success", "Laptop listing created!");
 
