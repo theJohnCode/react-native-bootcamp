@@ -1,18 +1,18 @@
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { BannerProvider } from "@/contexts/BannerContext";
 import { ListingsProvider } from "@/contexts/ListingsContext";
 import { Stack, useRouter } from "expo-router";
 import { useEffect } from "react";
 
 function RootLayoutContent() {
   const router = useRouter();
-  const { hasSeenLoginPrompt, user } = useAuth();
+  const { user } = useAuth();
 
-  console.log(user, hasSeenLoginPrompt);
 
   useEffect(() => {
     // Route based on auth state after component mounts
     const timer = setTimeout(() => {
-      if (!hasSeenLoginPrompt) {
+      if (!user || !user.email) {
         router.replace("/login");
       } else {
         router.replace("/(tabs)");
@@ -20,7 +20,7 @@ function RootLayoutContent() {
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [hasSeenLoginPrompt, router]);
+  }, [user, router]);
 
   return (
     <Stack
@@ -36,6 +36,7 @@ function RootLayoutContent() {
       }}
     >
       <Stack.Screen name="login" options={{ headerShown: false }} />
+      <Stack.Screen name="register" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="laptop/[id]" options={{ title: 'Laptop Details', headerShown: true }} />
     </Stack>
@@ -46,7 +47,9 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <ListingsProvider>
-        <RootLayoutContent />
+        <BannerProvider>
+          <RootLayoutContent />
+        </BannerProvider>
       </ListingsProvider>
     </AuthProvider>
   );
