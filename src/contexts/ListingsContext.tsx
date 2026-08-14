@@ -89,7 +89,9 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
     try {
       const { data, error } = await supabase
         .from("laptops")
-        .select("*, laptop_images(*)")
+        .select(
+          "*, laptop_images(*), seller:profiles(name, avatar_url, location, rating)",
+        )
         .order("created_at", { ascending: false });
 
         // console.log('Supabase data:', data.laptop_images);

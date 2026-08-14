@@ -5,6 +5,7 @@ import { formatPrice } from "@/utils/format";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useLayoutEffect, useMemo, useState } from "react";
 import {
+  Image,
   Pressable,
   ScrollView,
   StatusBar,
@@ -15,6 +16,16 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
+
 export default function LapTopDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const navigation = useNavigation();
@@ -22,7 +33,7 @@ export default function LapTopDetailScreen() {
   const { getLaptopById } = useListings();
 
   const laptop = getLaptopById(id);
-  // console.log('Laptop:', laptop);
+  const seller = laptop?.seller ?? null;
 
   useLayoutEffect(() => {
     if (laptop) {
@@ -160,8 +171,34 @@ export default function LapTopDetailScreen() {
 
         <View style={styles.sectionBlock}>
           <Text style={styles.sectionTitle}>Seller Information</Text>
-          <Text style={styles.sellerName}>Seller ID: {laptop.user_id}</Text>
-          {/* TODO: Fetch seller profile data from profiles table */}
+          <View style={styles.sellerRow}>
+            <View style={styles.avatarMock}>
+              {seller?.avatar_url ? (
+                <Image
+                  source={{ uri: seller.avatar_url }}
+                  style={styles.avatarImage}
+                />
+              ) : (
+                <Text style={styles.avatarText}>
+                  {seller?.name ? getInitials(seller.name) : "?"}
+                </Text>
+              )}
+            </View>
+
+            <View style={styles.sellerInfo}>
+              <Text style={styles.sellerName}>
+                {seller?.name || "ZoweHub Seller"}
+              </Text>
+              {seller?.location && (
+                <Text style={styles.sellerRating}>{seller.location}</Text>
+              )}
+              {typeof seller?.rating === "number" && (
+                <Text style={styles.sellerRating}>
+                  Rating: {seller.rating.toFixed(1)} / 5
+                </Text>
+              )}
+            </View>
+          </View>
         </View>
       </ScrollView>
 
@@ -298,6 +335,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginRight: 12,
+    overflow: "hidden",
+  },
+  avatarImage: {
+    width: 44,
+    height: 44,
   },
   avatarText: {
     color: "#0369a1",

@@ -109,6 +109,16 @@ export type LaptopListing = {
 
   /** Associated images */
   images: LaptopImage[];
+
+  /** The seller's public profile, fetched alongside the listing */
+  seller: SellerProfile | null;
+};
+
+export type SellerProfile = {
+  name: string | null;
+  avatar_url: string | null;
+  location: string | null;
+  rating: number | null;
 };
 
 export type LaptopImage = {

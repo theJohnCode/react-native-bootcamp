@@ -3,6 +3,7 @@ import { BannerProvider } from "@/contexts/BannerContext";
 import { ListingsProvider } from "@/contexts/ListingsContext";
 import { Stack, useRouter } from "expo-router";
 import { useEffect } from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 function RootLayoutContent() {
   const router = useRouter();
@@ -45,12 +46,14 @@ function RootLayoutContent() {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <ListingsProvider>
-        <BannerProvider>
-          <RootLayoutContent />
-        </BannerProvider>
-      </ListingsProvider>
-    </AuthProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AuthProvider>
+        <ListingsProvider>
+          <BannerProvider>
+            <RootLayoutContent />
+          </BannerProvider>
+        </ListingsProvider>
+      </AuthProvider>
+    </GestureHandlerRootView>
   );
 }
