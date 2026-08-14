@@ -1,4 +1,4 @@
-import { FlatList, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Alert, FlatList, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import Banner from '@/components/Banner';
 import { FilterChip } from '@/components/FilterChip';
@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import LaptopCard from '@/components/LaptopCard';
 import { ThemedText } from '@/components/ui/theme-text';
 import { Spacing } from '@/constants/theme';
+import { useAuth } from '@/contexts/AuthContext';
 import { useBanner } from '@/contexts/BannerContext';
 import { useListings } from '@/contexts/ListingsContext';
 import { brandFilters, conditionFilters, priceRangeFilters } from '@/data/laptop';
@@ -17,7 +18,8 @@ export default function Home() {
   const { width } = useWindowDimensions();
 
   const { banners } = useBanner();
-  const { laptops, loading, error, dispatch } = useListings();
+  const { laptops, loading, error, deleteListing } = useListings();
+  const { user } = useAuth();
 
   const isWide = width >= 720;
   const columns = isWide ? 3 : 2;
@@ -47,6 +49,26 @@ export default function Home() {
     []
   );
 
+
+  const handleDelete = (id: string, title: string) => {
+    Alert.alert(
+      "Delete listing",
+      "Delete \"" + title + "\"? This cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            const { error } = await deleteListing(id);
+            if (error) {
+              Alert.alert("Error", error.message || "Failed to delete listing");
+            }
+          },
+        },
+      ],
+    );
+  };
 
   const filteredListings = useMemo(() => {
     const activePriceRange = priceRangeFilters[selectedPriceRange];
@@ -83,7 +105,11 @@ export default function Home() {
                 onPress={() => router.push(`/laptop/${item.id}` as any)}
                 isFavourite={false}
                 onToggleFavourite={() => console.log(`Toggle favourite for ${item.title}`)}
-                onDelete={() => dispatch({ type: 'DELETE_LISTING', payload: item.id })}
+                onDelete={
+                  user?.id === item.user_id
+                    ? () => handleDelete(item.id, item.title)
+                    : undefined
+                }
               />
             )}
             showsVerticalScrollIndicator={false}

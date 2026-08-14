@@ -66,3 +66,17 @@ export async function deleteImage(path: string): Promise<{ error: any }> {
   const { error } = await supabase.storage.from(BUCKET_NAME).remove([path]);
   return { error };
 }
+
+/**
+ * Given a public storage URL (as returned by getPublicImageUrl), extract the
+ * storage path so it can be passed to deleteImage(). Returns null if the URL
+ * doesn't look like it belongs to our bucket.
+ */
+export function getStoragePathFromPublicUrl(url: string): string | null {
+  const marker = `/object/public/${BUCKET_NAME}/`;
+  const index = url.indexOf(marker);
+  if (index === -1) {
+    return null;
+  }
+  return url.slice(index + marker.length);
+}

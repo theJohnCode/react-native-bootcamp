@@ -1,5 +1,9 @@
 import { LaptopImage, LaptopListing } from "@/data/laptop";
-import { supabase } from "@/utils/supabase";
+import {
+  deleteImage,
+  getStoragePathFromPublicUrl,
+  supabase,
+} from "@/utils/supabase";
 import {
   createContext,
   ReactNode,
@@ -21,6 +25,7 @@ interface ListingsContextType {
   error: string | null;
   getLaptopById: (id: string) => LaptopListing | undefined;
   refreshListings: () => Promise<void>;
+  deleteListing: (id: string) => Promise<{ error: any }>;
   dispatch: React.Dispatch<ListingsAction>;
 }
 
@@ -140,6 +145,57 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
     return state.laptops.find((laptop) => laptop.id === id);
   };
 
+  const deleteListing = useCallback(
+    async (id: string) => {
+      const laptop = state.laptops.find((item) => item.id === id);
+
+      // Optimistically remove it from the UI right away.
+      dispatch({ type: "DELETE_LISTING", payload: id });
+
+      try {
+        // Remove image rows first in case the DB isn't set up with
+        // ON DELETE CASCADE from laptop_images -> laptops.
+        const { error: imagesError } = await supabase
+          .from("laptop_images")
+          .delete()
+          .eq("laptop_id", id);
+
+        if (imagesError) {
+          throw imagesError;
+        }
+
+        const { error: laptopError } = await supabase
+          .from("laptops")
+          .delete()
+          .eq("id", id);
+
+        if (laptopError) {
+          throw laptopError;
+        }
+
+        // Best-effort cleanup of the uploaded image files. Failures here
+        // shouldn't block the delete or surface an error to the user.
+        laptop?.images.forEach((image) => {
+          const path = getStoragePathFromPublicUrl(image.image_url);
+          if (path) {
+            deleteImage(path).catch((storageError) => {
+              console.error("Error deleting stored image:", storageError);
+            });
+          }
+        });
+
+        return { error: null };
+      } catch (error: any) {
+        console.error("Error deleting listing:", error);
+        // The delete failed server-side, so undo the optimistic removal by
+        // re-syncing with what's actually in the database.
+        await refreshListings();
+        return { error };
+      }
+    },
+    [state.laptops, refreshListings],
+  );
+
   return (
     <ListingsContext.Provider
       value={{
@@ -148,6 +204,7 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
         error: state.error,
         getLaptopById,
         refreshListings,
+        deleteListing,
         dispatch,
       }}
     >
