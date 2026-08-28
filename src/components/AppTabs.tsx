@@ -40,7 +40,9 @@ export default function AppTabs() {
         tabBarActiveTintColor: '#1D9E75',
         tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
-          // borderTopColor: colors.backgroundElement,
+          height: 65,
+          paddingBottom: 8,
+          paddingTop: 4,
         },
         tabBarLabelStyle: styles.tabLabel,
       }}
@@ -113,8 +115,10 @@ export default function AppTabs() {
 
 const styles = StyleSheet.create({
   tabLabel: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
+    marginTop: 4,
+    height: 14,
   },
   floatingButton: {
     top: -20,

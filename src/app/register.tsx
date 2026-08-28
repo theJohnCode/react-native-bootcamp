@@ -1,8 +1,8 @@
 import { Colors } from "@/constants/theme";
-import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/utils/supabase";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { useRouter } from "expo-router";
+import { router } from "expo-router";
 import { useState } from "react";
 import {
   Alert,
@@ -16,31 +16,60 @@ import {
   View,
 } from "react-native";
 
-export default function LoginScreen() {
+export default function RegisterScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
   const scheme = useColorScheme();
-  const router = useRouter();
   const colors = Colors[scheme === "dark" ? "dark" : "light"];
 
-  const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) {
+  const handleRegister = async () => {
+    if (!email.trim() || !password.trim() || !name.trim()) {
       Alert.alert("Error", "Please fill in all fields");
+      return;
+    }
+
+    if (password.length < 6) {
+      Alert.alert("Error", "Password must be at least 6 characters");
       return;
     }
 
     setLoading(true);
 
-    const { error } = await login(email, password);
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim().toLowerCase(),
+        password: password,
+        options: {
+          data: {
+            name: name.trim(),
+          },
+        },
+      });
 
-    if (error) {
-      Alert.alert("Login Error", error.message);
+      if (error) {
+        Alert.alert("Registration Error", error.message);
+        return;
+      }
+
+      Alert.alert(
+        "Success",
+        "Registration successful! Please check your email to verify your account.",
+        [
+          {
+            text: "OK",
+            onPress: () => router.replace("/login"),
+          },
+        ],
+      );
+    } catch (error) {
+      Alert.alert("Error", "An unexpected error occurred");
+      console.error("Registration error:", error);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
@@ -50,11 +79,28 @@ export default function LoginScreen() {
     >
       <View style={styles.content}>
         <Text style={[styles.title, { color: colors.text }]}>
-          Welcome to ZoweHub
+          Create Account
         </Text>
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-          Sign in to get started
+          Sign up to get started with ZoweHub
         </Text>
+
+        <TextInput
+          style={[
+            styles.input,
+            {
+              backgroundColor: colors.backgroundElement,
+              color: colors.text,
+              borderColor: colors.textSecondary,
+            },
+          ]}
+          placeholder="Name"
+          placeholderTextColor={colors.textSecondary}
+          value={name}
+          onChangeText={setName}
+          returnKeyType="next"
+          autoCapitalize="none"
+        />
 
         <TextInput
           style={[
@@ -92,7 +138,7 @@ export default function LoginScreen() {
             onChangeText={setPassword}
             secureTextEntry={!showPassword}
             returnKeyType="done"
-            onSubmitEditing={handleLogin}
+            onSubmitEditing={handleRegister}
           />
           <TouchableOpacity
             style={styles.eyeIcon}
@@ -107,32 +153,25 @@ export default function LoginScreen() {
         </View>
 
         <TouchableOpacity
-          style={[styles.loginButton, { backgroundColor: "#1D9E75" }]}
-          onPress={handleLogin}
-          disabled={loading || !email.trim() || !password.trim()}
+          style={[styles.registerButton, { backgroundColor: "#1D9E75" }]}
+          onPress={handleRegister}
+          disabled={
+            loading || !email.trim() || !password.trim() || !name.trim()
+          }
         >
-          <Text style={styles.loginButtonText}>
-            {loading ? "Logging in..." : "Login"}
+          <Text style={styles.registerButtonText}>
+            {loading ? "Creating Account..." : "Sign Up"}
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.registerLink}
-          onPress={() => router.replace("/register")}
+          style={styles.loginLink}
+          onPress={() => router.replace("/login")}
         >
-          <Text style={[styles.registerLinkText, { color: "#1D9E75" }]}>
-            Don't have an account? Sign Up
+          <Text style={[styles.loginLinkText, { color: "#1D9E75" }]}>
+            Already have an account? Login
           </Text>
         </TouchableOpacity>
-
-        {/* <TouchableOpacity
-          style={styles.skipButton}
-          onPress={skipLogin}
-        >
-          <Text style={[styles.skipButtonText, { color: '#1D9E75' }]}>
-            Skip for now
-          </Text>
-        </TouchableOpacity> */}
       </View>
     </KeyboardAvoidingView>
   );
@@ -165,12 +204,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    marginBottom: 20,
+    marginBottom: 16,
     fontSize: 16,
   },
   passwordContainer: {
     position: "relative",
-    marginBottom: 20,
+    marginBottom: 16,
   },
   passwordInput: {
     paddingRight: 50,
@@ -180,30 +219,22 @@ const styles = StyleSheet.create({
     right: 16,
     top: 12,
   },
-  loginButton: {
+  registerButton: {
     paddingVertical: 14,
     borderRadius: 8,
     alignItems: "center",
     marginBottom: 12,
   },
-  loginButtonText: {
+  registerButtonText: {
     color: "white",
     fontSize: 16,
     fontWeight: "600",
   },
-  skipButton: {
+  loginLink: {
     paddingVertical: 12,
     alignItems: "center",
   },
-  skipButtonText: {
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  registerLink: {
-    paddingVertical: 12,
-    alignItems: "center",
-  },
-  registerLinkText: {
+  loginLinkText: {
     fontSize: 14,
     fontWeight: "500",
   },

@@ -5,9 +5,11 @@ import {
     Image,
     NativeScrollEvent,
     NativeSyntheticEvent,
+    Pressable,
     StyleSheet,
     View
 } from 'react-native';
+import ImageViewerModal from './ImageViewerModal';
 
 // Get device width to make images completely full screen widthwise
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -18,6 +20,7 @@ interface ImageSliderProps {
 
 export default function ImageSlider({ images }: ImageSliderProps) {
   const [activeIndex, setActiveIndex] = useState<number>(0);
+  const [viewerIndex, setViewerIndex] = useState<number | null>(null);
 
   // Track scroll position to update pagination dots dynamically
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -37,8 +40,10 @@ export default function ImageSlider({ images }: ImageSliderProps) {
         onScroll={handleScroll}
         scrollEventThrottle={16} // Fires the scroll hook frequently enough for smooth indicator updates
         snapToAlignment="center"
-        renderItem={({ item }) => (
-          <Image source={{ uri: item }} style={styles.image} resizeMode="cover" />
+        renderItem={({ item, index }) => (
+          <Pressable onPress={() => setViewerIndex(index)}>
+            <Image source={{ uri: item }} style={styles.image} resizeMode="cover" />
+          </Pressable>
         )}
       />
 
@@ -54,6 +59,13 @@ export default function ImageSlider({ images }: ImageSliderProps) {
           />
         ))}
       </View>
+
+      <ImageViewerModal
+        images={images}
+        initialIndex={viewerIndex ?? activeIndex}
+        visible={viewerIndex !== null}
+        onClose={() => setViewerIndex(null)}
+      />
     </View>
   );
 }
