@@ -1,5 +1,5 @@
 {
-  "name": "teaching_app",
+  "name": "henry-tech-app",
   "main": "expo-router/entry",
   "version": "1.0.0",
   "dependencies": {
