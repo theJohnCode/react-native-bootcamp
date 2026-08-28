@@ -17,7 +17,8 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anonymous.zowehub"
     },
     "web": {
       "output": "static",
@@ -34,11 +35,24 @@
             "imageWidth": 76
           }
         }
-      ]
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#1D9E75"
+        }
+      ],
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "bad9d170-1cb0-4eb4-a0cf-aef96bebd805"
+      }
     }
   }
 }

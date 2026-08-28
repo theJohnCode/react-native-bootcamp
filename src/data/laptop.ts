@@ -112,6 +112,13 @@ export type LaptopListing = {
 
   /** The seller's public profile, fetched alongside the listing */
   seller: SellerProfile | null;
+
+  /**
+   * ISO timestamp for when this listing expires, or null if it never
+   * expires. Used to schedule a local "expires tomorrow" reminder — see
+   * scheduleListingExpiryNotification in src/utils/notifications.ts.
+   */
+  expires_at: string | null;
 };
 
 export type SellerProfile = {

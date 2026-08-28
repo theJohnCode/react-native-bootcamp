@@ -2,6 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useListings } from "@/contexts/ListingsContext";
 import { Brand, BRANDS, Condition, CONDITIONS } from "@/data/laptop";
 import { formatPrice } from "@/utils/format";
+import { scheduleListingExpiryNotification } from "@/utils/notifications";
 import {
   deleteImage,
   getPublicImageUrl,
@@ -28,6 +29,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const MAX_IMAGES = 6;
+const EXPIRY_OPTIONS = [7, 14, 30] as const;
 
 type FormErrors = Partial<
   Record<"title" | "price" | "processor" | "ram" | "storage" | "images", string>
@@ -47,6 +49,7 @@ export default function CreateLaptopScreen() {
   const [storage, setStorage] = useState("");
   const [batteryHealth, setBatteryHealth] = useState(100);
   const [description, setDescription] = useState("");
+  const [expiryDays, setExpiryDays] = useState<number>(30);
   const [images, setImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{
@@ -108,6 +111,33 @@ export default function CreateLaptopScreen() {
     }
   };
 
+  const handleTakePhoto = async () => {
+    if (images.length >= MAX_IMAGES) {
+      Alert.alert("Limit reached", `You can add up to ${MAX_IMAGES} photos.`);
+      return;
+    }
+
+    const permission = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert(
+        "Camera access needed",
+        "Enable camera access for ZoweHub in your device settings to take a photo.",
+      );
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ["images"],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets) {
+      const newImages = result.assets.map((asset: any) => asset.uri);
+      setImages((prev) => [...prev, ...newImages].slice(0, MAX_IMAGES));
+      clearError("images");
+    }
+  };
+
   const handleRemoveImage = (index: number) => {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
@@ -132,6 +162,7 @@ export default function CreateLaptopScreen() {
     setStorage("");
     setBatteryHealth(100);
     setDescription("");
+    setExpiryDays(30);
     setImages([]);
     setErrors({});
   };
@@ -204,6 +235,10 @@ export default function CreateLaptopScreen() {
       }
 
       // 2. Create the laptop record.
+      const expiresAt = new Date(
+        Date.now() + expiryDays * 24 * 60 * 60 * 1000,
+      ).toISOString();
+
       const { data: laptopData, error: laptopError } = await supabase
         .from("laptops")
         .insert({
@@ -217,6 +252,7 @@ export default function CreateLaptopScreen() {
           storage: storage.trim(),
           battery_health: Math.round(batteryHealth),
           description: description.trim() || null,
+          expires_at: expiresAt,
         })
         .select()
         .single();
@@ -237,6 +273,19 @@ export default function CreateLaptopScreen() {
         .insert(imageRecords);
 
       if (imagesError) throw imagesError;
+
+      // Best-effort: a failure to schedule the reminder shouldn't fail the
+      // whole listing creation flow.
+      const notificationId = await scheduleListingExpiryNotification({
+        id: laptopData.id,
+        title: title.trim(),
+        expiresAt,
+      });
+      if (!notificationId) {
+        console.warn(
+          "Could not schedule the listing expiry notification (listing was still created successfully).",
+        );
+      }
 
       await refreshListings();
 
@@ -300,20 +349,34 @@ export default function CreateLaptopScreen() {
             <Text style={styles.label}>
               Images <Text style={styles.required}>*</Text>
             </Text>
-            <Pressable
-              style={[
-                styles.imagePickerButton,
-                images.length >= MAX_IMAGES && styles.disabledButton,
-              ]}
-              onPress={handlePickImage}
-              disabled={images.length >= MAX_IMAGES}
-            >
-              <Text style={styles.imagePickerButtonText}>
-                {images.length >= MAX_IMAGES
-                  ? "Photo limit reached"
-                  : "+ Add Images"}
-              </Text>
-            </Pressable>
+            <View style={styles.imageButtonsRow}>
+              <Pressable
+                style={[
+                  styles.imagePickerButton,
+                  styles.imageButtonHalf,
+                  images.length >= MAX_IMAGES && styles.disabledButton,
+                ]}
+                onPress={handlePickImage}
+                disabled={images.length >= MAX_IMAGES}
+              >
+                <Text style={styles.imagePickerButtonText}>
+                  {images.length >= MAX_IMAGES
+                    ? "Limit reached"
+                    : "+ Add Images"}
+                </Text>
+              </Pressable>
+              <Pressable
+                style={[
+                  styles.imagePickerButton,
+                  styles.imageButtonHalf,
+                  images.length >= MAX_IMAGES && styles.disabledButton,
+                ]}
+                onPress={handleTakePhoto}
+                disabled={images.length >= MAX_IMAGES}
+              >
+                <Text style={styles.imagePickerButtonText}>Take Photo</Text>
+              </Pressable>
+            </View>
 
             {images.length > 0 && (
               <>
@@ -427,6 +490,25 @@ export default function CreateLaptopScreen() {
                 ))}
               </Picker>
             </View>
+          </View>
+
+          {/* Expiry */}
+          <View style={styles.section}>
+            <Text style={styles.label}>Listing Expiry</Text>
+            <View style={styles.picker}>
+              <Picker
+                selectedValue={expiryDays}
+                onValueChange={(value) => setExpiryDays(Number(value))}
+                mode="dropdown"
+              >
+                {EXPIRY_OPTIONS.map((days) => (
+                  <Picker.Item key={days} label={`${days} days`} value={days} />
+                ))}
+              </Picker>
+            </View>
+            <Text style={styles.helperText}>
+              We will remind you a day before your listing expires.
+            </Text>
           </View>
 
           {/* Processor */}
@@ -657,6 +739,13 @@ const styles = StyleSheet.create({
   },
   spacer: {
     height: 8,
+  },
+  imageButtonsRow: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  imageButtonHalf: {
+    flex: 1,
   },
   imagePickerButton: {
     borderWidth: 2,
